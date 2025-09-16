@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加课程</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .form-title {
+            color: #165DFF;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f2f3f5;
+            position: relative;
+        }
+        .form-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 50px;
+            height: 3px;
+            background-color: #165DFF;
+            border-radius: 3px;
+        }
+        .layui-form-item {
+            margin-bottom: 20px;
+        }
+        .layui-form-label {
+            width: 110px;
+            font-weight: 500;
+        }
+        .layui-input-block {
+            margin-left: 140px;
+        }
+        .layui-input, .layui-select, .layui-textarea {
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
+            border-color: #165DFF;
+            box-shadow: 0 0 0 2px rgba(22,93,255,0.1);
+        }
+        .form-actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .layui-btn {
+            padding: 0 25px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 6px;
+            margin: 0 10px;
+            transition: all 0.2s;
+        }
+        .layui-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22,93,255,0.2);
+        }
+        .input-icon {
+            position: relative;
+        }
+        .input-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        .input-icon .layui-input {
+            padding-left: 38px;
+        }
+        
+        @media (max-width: 768px) {
+            .layui-form-label {
+                width: 100%;
+                display: block;
+                margin-bottom: 8px;
+            }
+            .layui-input-block {
+                margin-left: 0;
+                width: 100%;
+            }
+            .form-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .layui-btn {
+                margin: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <div class="form-title">
+        <i class="fa fa-book"></i> 添加课程信息
+    </div>
+    
+    <form class="layui-form" lay-filter="courseForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">课程名称</label>
+            <div class="layui-input-block input-icon">
+                <i class="fa fa-tag"></i>
+                <input type="text" name="courseName" lay-verify="required" 
+                       placeholder="请输入课程名称" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">课程编码</label>
+            <div class="layui-input-block input-icon">
+                <i class="fa fa-barcode"></i>
+                <input type="text" name="courseCode" lay-verify="required" 
+                       placeholder="请输入课程编码" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">所属专业</label>
+            <div class="layui-input-block">
+                <select name="major" lay-verify="required">
+                    <option value="">请选择专业</option>
+                    <option value="软件工程">软件工程</option>
+                    <option value="计算机科学与技术">计算机科学与技术</option>
+                    <option value="人工智能">人工智能</option>
+                    <option value="数据科学与大数据技术">数据科学与大数据技术</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">授课教师</label>
+            <div class="layui-input-block input-icon">
+                <i class="fa fa-user"></i>
+                <input type="text" name="teacher" lay-verify="required" 
+                       placeholder="请输入授课教师姓名" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">学分</label>
+            <div class="layui-input-block input-icon">
+                <i class="fa fa-graduation-cap"></i>
+                <input type="number" name="credit" lay-verify="required|number" 
+                       min="1" max="10" placeholder="请输入学分" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">学时</label>
+            <div class="layui-input-block input-icon">
+                <i class="fa fa-clock-o"></i>
+                <input type="number" name="classHours" lay-verify="required|number" 
+                       min="16" max="128" placeholder="请输入学时" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">课程类型</label>
+            <div class="layui-input-block">
+                <select name="courseType" lay-verify="required">
+                    <option value="">请选择课程类型</option>
+                    <option value="必修课">必修课</option>
+                    <option value="选修课">选修课</option>
+                    <option value="专业基础课">专业基础课</option>
+                    <option value="实践课">实践课</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">课程简介</label>
+            <div class="layui-input-block">
+                <textarea name="description" placeholder="请输入课程简介" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">课程状态</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="1" title="启用" checked>
+                <input type="radio" name="status" value="0" title="禁用">
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button class="layui-btn" lay-submit lay-filter="submitCourse">
+                <i class="fa fa-check"></i> 提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary">
+                <i class="fa fa-refresh"></i> 重置
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        
+        // 监听表单提交
+        form.on('submit(submitCourse)', function(data) {
+            // 模拟数据提交
+            layer.load(2);
+            
+            // 实际项目中替换为真实接口请求
+            setTimeout(function() {
+                layer.closeAll('loading');
+                layer.msg('课程添加成功', {icon: 1}, function() {
+                    // 关闭当前页面（如果是弹窗）
+                    if (parent && parent.layer) {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                        // 刷新父页面表格
+                        if (parent.layui.table) {
+                            parent.layui.table.reload('courseTable');
+                        }
+                    }
+                });
+            }, 1000);
+            
+            return false; // 阻止表单默认提交
+        });
+    });
+</script>
+</body>
+</html>

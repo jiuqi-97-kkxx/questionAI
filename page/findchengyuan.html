@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成员查询</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',
+                        secondary: '#64748B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .card-effect {
+                transition: all 0.3s ease;
+            }
+            .card-effect:hover {
+                box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1), 0 8px 10px -6px rgba(16, 185, 129, 0.1);
+                transform: translateY(-3px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold text-gray-800 mb-2">
+                <i class="fa fa-users text-primary mr-3"></i>成员查询系统
+            </h1>
+            <p class="text-gray-600 text-lg">查找团队或组织成员信息</p>
+        </header>
+        
+        <!-- 搜索区域 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="请输入成员姓名或关键词..." 
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                >
+                <button 
+                    id="searchBtn" 
+                    class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                >
+                    <i class="fa fa-search"></i>
+                    <span>搜索</span>
+                </button>
+                <button 
+                    id="clearBtn" 
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all"
+                >
+                    清空
+                </button>
+            </div>
+            
+            <!-- 部门筛选 -->
+            <div class="mt-5">
+                <p class="text-gray-500 mb-2">部门筛选:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="dept-filter bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-200 transition-colors">全部</span>
+                    <span class="dept-filter bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-200 transition-colors">技术部</span>
+                    <span class="dept-filter bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-200 transition-colors">市场部</span>
+                    <span class="dept-filter bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-200 transition-colors">人事部</span>
+                    <span class="dept-filter bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-200 transition-colors">财务部</span>
+                    <span class="dept-filter bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-200 transition-colors">运营部</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果区域 -->
+        <div id="results" class="space-y-4">
+            <!-- 结果将通过JavaScript动态插入 -->
+            <div id="initialMessage" class="text-center py-12 text-gray-500">
+                <i class="fa fa-user-circle-o fa-3x mb-4 opacity-30"></i>
+                <p>请输入成员姓名进行搜索</p>
+            </div>
+            
+            <div id="loading" class="hidden text-center py-12">
+                <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                <p class="mt-4 text-gray-600">正在搜索...</p>
+            </div>
+            
+            <div id="noResults" class="hidden text-center py-12 bg-white rounded-xl p-6 shadow-md">
+                <i class="fa fa-frown-o fa-3x text-gray-400 mb-4"></i>
+                <p class="text-gray-600">未找到相关成员，请尝试其他关键词</p>
+            </div>
+            
+            <div id="resultsList" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟成员数据
+        const members = [
+            { id: 1, name: "张三", department: "技术部", position: "前端开发工程师", email: "zhangsan@example.com", phone: "13800138000", avatar: "https://picsum.photos/id/1012/100/100" },
+            { id: 2, name: "李四", department: "技术部", position: "后端开发工程师", email: "lisi@example.com", phone: "13900139000", avatar: "https://picsum.photos/id/1005/100/100" },
+            { id: 3, name: "王五", department: "市场部", position: "市场经理", email: "wangwu@example.com", phone: "13700137000", avatar: "https://picsum.photos/id/1025/100/100" },
+            { id: 4, name: "赵六", department: "人事部", position: "人事专员", email: "zhaoliu@example.com", phone: "13600136000", avatar: "https://picsum.photos/id/1027/100/100" },
+            { id: 5, name: "钱七", department: "财务部", position: "会计", email: "qianqi@example.com", phone: "13500135000", avatar: "https://picsum.photos/id/1074/100/100" },
+            { id: 6, name: "孙八", department: "运营部", position: "运营主管", email: "sunba@example.com", phone: "13400134000", avatar: "https://picsum.photos/id/1062/100/100" },
+            { id: 7, name: "周九", department: "技术部", position: "UI设计师", email: "zhoujiu@example.com", phone: "13300133000", avatar: "https://picsum.photos/id/1066/100/100" },
+            { id: 8, name: "吴十", department: "市场部", position: "销售代表", email: "wushi@example.com", phone: "13200132000", avatar: "https://picsum.photos/id/1083/100/100" }
+        ];
+
+        // DOM元素
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const initialMessage = document.getElementById('initialMessage');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const resultsList = document.getElementById('resultsList');
+        const deptFilters = document.querySelectorAll('.dept-filter');
+        
+        let activeDepartment = '全部'; // 默认显示全部部门
+
+        // 搜索功能
+        function searchMembers() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            
+            // 显示加载状态
+            initialMessage.classList.add('hidden');
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                // 过滤结果
+                const filtered = members.filter(member => {
+                    const matchesKeyword = member.name.toLowerCase().includes(keyword) || 
+                                         member.position.toLowerCase().includes(keyword);
+                    const matchesDept = activeDepartment === '全部' || member.department === activeDepartment;
+                    return matchesKeyword && matchesDept;
+                });
+                
+                // 隐藏加载状态
+                loading.classList.add('hidden');
+                
+                // 显示结果
+                if (filtered.length > 0) {
+                    displayResults(filtered);
+                    resultsList.classList.remove('hidden');
+                } else {
+                    noResults.classList.remove('hidden');
+                }
+            }, 600);
+        }
+
+        // 显示搜索结果
+        function displayResults(results) {
+            resultsList.innerHTML = '';
+            
+            results.forEach(member => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl p-5 shadow-md card-effect';
+                card.innerHTML = `
+                    <div class="flex flex-col items-center text-center">
+                        <img src="${member.avatar}" alt="${member.name}的头像" class="w-24 h-24 rounded-full object-cover mb-4 border-2 border-primary/20">
+                        
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">${member.name}</h3>
+                        <p class="text-primary font-medium mb-3">${member.position}</p>
+                        
+                        <div class="w-full bg-gray-100 rounded-full h-px my-3"></div>
+                        
+                        <div class="space-y-2 text-sm text-gray-600 w-full">
+                            <div class="flex items-center justify-center">
+                                <i class="fa fa-building-o text-primary mr-2"></i>
+                                <span>${member.department}</span>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <i class="fa fa-envelope-o text-primary mr-2"></i>
+                                <span>${member.email}</span>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <i class="fa fa-phone text-primary mr-2"></i>
+                                <span>${member.phone}</span>
+                            </div>
+                        </div>
+                        
+                        <button class="mt-4 text-primary hover:text-primary/80 font-medium text-sm transition-colors">
+                            查看详细资料
+                        </button>
+                    </div>
+                `;
+                resultsList.appendChild(card);
+            });
+        }
+
+        // 清空搜索
+        function clearSearch() {
+            searchInput.value = '';
+            activeDepartment = '全部';
+            // 重置部门筛选样式
+            deptFilters.forEach(dept => {
+                if (dept.textContent === '全部') {
+                    dept.classList.add('bg-green-200', 'font-medium');
+                } else {
+                    dept.classList.remove('bg-green-200', 'font-medium');
+                }
+            });
+            // 重置显示
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.add('hidden');
+            initialMessage.classList.remove('hidden');
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', searchMembers);
+        clearBtn.addEventListener('click', clearSearch);
+        
+        // 回车搜索
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchMembers();
+            }
+        });
+        
+        // 部门筛选
+        deptFilters.forEach(dept => {
+            dept.addEventListener('click', () => {
+                // 更新活跃部门
+                activeDepartment = dept.textContent;
+                
+                // 更新部门筛选样式
+                deptFilters.forEach(d => {
+                    if (d.textContent === activeDepartment) {
+                        d.classList.add('bg-green-200', 'font-medium');
+                    } else {
+                        d.classList.remove('bg-green-200', 'font-medium');
+                    }
+                });
+                
+                // 执行搜索
+                searchMembers();
+            });
+        });
+    </script>
+</body>
+</html>
+    

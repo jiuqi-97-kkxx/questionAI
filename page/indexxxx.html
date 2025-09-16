@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>美化导航栏</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 基础重置（优化版） */
+        * {
+            margin: 0;
+            padding: 0;
+            text-decoration: none;
+            list-style: none;
+            box-sizing: border-box; /* 统一盒模型，避免宽度计算偏差 */
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", Roboto, sans-serif; /* 适配中文的无衬线字体 */
+            background-color: #f5f7fa; /* 页面背景色，提升导航栏对比度 */
+        }
+
+        /* 导航栏容器 */
+        .nav {
+            height: 50px; /* 适度增加高度，提升点击区域和视觉舒适度 */
+            background-color: #2c3e50; /* 深靛蓝色，现代感强且不刺眼 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 更柔和的阴影，增强层次感 */
+            position: relative; /* 为下拉菜单定位做准备 */
+            z-index: 999; /* 确保导航栏在最上层，不被其他元素遮挡 */
+        }
+
+        /* 导航列表容器 */
+        .navlist {
+            width: 100%;
+            max-width: 1200px; /* 限制最大宽度，在宽屏上更美观 */
+            margin: 0 auto; /* 水平居中 */
+            display: flex; /* 弹性布局，替代float，更易维护 */
+        }
+
+        /* 导航主项 */
+        .btli {
+            flex: 0 0 120px; /* 固定宽度，确保导航项均匀分布 */
+            height: 50px;
+            line-height: 50px; /* 垂直居中 */
+            text-align: center;
+            position: relative; /* 为下拉菜单绝对定位做父容器 */
+            transition: background-color 0.3s ease; /* 背景色过渡动画 */
+        }
+
+        /* 主项链接样式 */
+        .navlist a {
+            color: #ecf0f1; /* 浅灰色文字，比纯白更柔和 */
+            display: block;
+            font-size: 15px;
+            transition: all 0.3s ease; /* 统一过渡效果 */
+        }
+
+        /* 主项hover效果 */
+        .btli:hover {
+            background-color: #34495e; /*  hover时深一层的蓝色，保持色调统一 */
+        }
+
+        .btli:hover > a {
+            color: #3498db; /* 文字变亮蓝色，增强交互反馈 */
+            transform: translateY(-1px); /* 轻微上移，模拟"浮起"感 */
+        }
+
+        /* 下拉菜单容器 */
+        .droplist {
+            background-color: #ffffff; /* 白色下拉菜单，更清爽 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 下拉阴影增强层次感 */
+            display: none;
+            position: absolute; /* 绝对定位，不影响主导航布局 */
+            top: 100%; /* 紧贴主项底部 */
+            left: 0;
+            width: 100%; /* 下拉菜单宽度与主项一致 */
+            border-radius: 0 0 6px 6px; /* 只给底部圆角，更精致 */
+            overflow: hidden; /* 隐藏内部元素圆角溢出 */
+        }
+
+        /* 下拉菜单项 */
+        .droplist li {
+            border-top: 1px solid #f1f1f1; /* 浅灰色分隔线，比原#666更柔和 */
+            transition: background-color 0.2s ease;
+        }
+
+        .droplist a {
+            color: #333333; /* 深灰色文字，比黑色更舒适 */
+            font-size: 14px;
+            padding: 8px 0; /* 增加上下内边距，提升点击区域 */
+        }
+
+        /* 下拉菜单项hover效果 */
+        .droplist li:hover {
+            background-color: #f8f9fa; /* hover时浅灰色背景，不刺眼 */
+        }
+
+        .droplist li:hover a {
+            color: #2980b9; /* 文字变蓝色，与主导航呼应 */
+            transform: none; /* 取消下拉项文字上移，避免过度动画 */
+        }
+
+        /* 显示下拉菜单（hover触发） */
+        .btli:hover .droplist {
+            display: block;
+            animation: dropdownFade 0.3s ease forwards; /* 下拉淡入动画 */
+        }
+
+        /* 下拉菜单动画 */
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px); /* 从上方10px处淡入 */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 移动端适配（屏幕宽度≤768px时） */
+        @media (max-width: 768px) {
+            .nav {
+                height: auto; /* 取消固定高度，适应移动端布局 */
+                padding: 10px 0;
+            }
+
+            .navlist {
+                flex-direction: column; /* 垂直排列导航项 */
+                align-items: center; /* 水平居中 */
+            }
+
+            .btli {
+                flex: none; /* 取消固定宽度 */
+                width: 100%; /* 占满屏幕宽度 */
+                height: 45px;
+                line-height: 45px;
+            }
+
+            .droplist {
+                position: static; /* 取消绝对定位，融入文档流 */
+                border-radius: 6px; /* 全圆角 */
+                margin: 0 10px 10px; /* 增加边距，避免贴边 */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <ul class="navlist">
+            <!-- 导航项1 -->
+            <li class="btli">
+                <a href="#">首页</a>
+                <ul class="droplist">
+                    <li><a href="#">网站首页</a></li>
+                    <li><a href="#">最新动态</a></li>
+                    <li><a href="#">关于我们</a></li>
+                    <li><a href="#">联系客服</a></li>
+                    <li><a href="#">网站地图</a></li>
+                </ul>
+            </li>
+            <!-- 导航项2 -->
+            <li class="btli">
+                <a href="#">产品中心</a>
+                <ul class="droplist">
+                    <li><a href="#">热门产品</a></li>
+                    <li><a href="#">新品上市</a></li>
+                    <li><a href="#">折扣专区</a></li>
+                    <li><a href="#">定制服务</a></li>
+                    <li><a href="#">产品手册</a></li>
+                </ul>
+            </li>
+            <!-- 导航项3 -->
+            <li class="btli">
+                <a href="#">解决方案</a>
+                <ul class="droplist">
+                    <li><a href="#">企业方案</a></li>
+                    <li><a href="#">个人方案</a></li>
+                    <li><a href="#">行业案例</a></li>
+                    <li><a href="#">技术文档</a></li>
+                    <li><a href="#">常见问题</a></li>
+                </ul>
+            </li>
+            <!-- 导航项4 -->
+            <li class="btli">
+                <a href="#">新闻资讯</a>
+                <ul class="droplist">
+                    <li><a href="#">行业新闻</a></li>
+                    <li><a href="#">公司动态</a></li>
+                    <li><a href="#">政策解读</a></li>
+                    <li><a href="#">专家观点</a></li>
+                    <li><a href="#">媒体报道</a></li>
+                </ul>
+            </li>
+            <!-- 导航项5 -->
+            <li class="btli">
+                <a href="#">用户中心</a>
+                <ul class="droplist">
+                    <li><a href="#">登录</a></li>
+                    <li><a href="#">注册</a></li>
+                    <li><a href="#">个人资料</a></li>
+                    <li><a href="#">订单管理</a></li>
+                    <li><a href="#">收藏夹</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

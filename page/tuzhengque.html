@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>正确率统计</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .stat-container {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .stat-title {
+            color: #165DFF;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f2f3f5;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .layui-btn {
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .layui-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(22,93,255,0.15);
+        }
+        .chart-box {
+            height: 350px;
+            margin-bottom: 20px;
+            border: 1px solid #f2f3f5;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .stats-card {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            flex: 1;
+            min-width: 180px;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-item .value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #165DFF;
+            margin: 8px 0;
+        }
+        .stat-item .label {
+            color: #666;
+            font-size: 14px;
+        }
+        .trend-up {
+            color: #00B42A;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="stat-container">
+    <!-- 标题 -->
+    <div class="stat-title">
+        <i class="fa fa-check-circle"></i> 答题正确率统计
+    </div>
+
+    <!-- 筛选与图表切换 -->
+    <div class="filter-bar">
+        <!-- 筛选条件 -->
+        <div class="layui-form-item">
+            <select class="layui-select" id="subjectFilter">
+                <option value="all">全部科目</option>
+                <option value="math">数学</option>
+                <option value="chinese">语文</option>
+                <option value="english">英语</option>
+            </select>
+        </div>
+        <div class="layui-form-item">
+            <select class="layui-select" id="gradeFilter">
+                <option value="all">全部年级</option>
+                <option value="1">高一</option>
+                <option value="2">高二</option>
+                <option value="3">高三</option>
+            </select>
+        </div>
+
+        <!-- 图表类型切换 -->
+        <button class="layui-btn" data-type="bar">
+            <i class="fa fa-bar-chart"></i> 柱状图
+        </button>
+        <button class="layui-btn layui-btn-primary" data-type="line">
+            <i class="fa fa-line-chart"></i> 折线图
+        </button>
+
+        <!-- 刷新按钮 -->
+        <button class="layui-btn layui-btn-primary" id="refreshBtn">
+            <i class="fa fa-refresh"></i> 刷新数据
+        </button>
+    </div>
+
+    <!-- 图表容器 -->
+    <div class="chart-box">
+        <canvas id="accuracyChart"></canvas>
+    </div>
+
+    <!-- 关键指标卡片 -->
+    <div class="stats-card">
+        <div class="stat-item">
+            <div class="label">整体平均正确率</div>
+            <div class="value">86.2%</div>
+            <div class="trend-up"><i class="fa fa-arrow-up"></i> 较上月+1.8%</div>
+        </div>
+        <div class="stat-item">
+            <div class="label">最高正确率科目</div>
+            <div class="value">92.5%</div>
+            <div class="trend-up">数学（高二）</div>
+        </div>
+        <div class="stat-item">
+            <div class="label">最低正确率科目</div>
+            <div class="value">78.3%</div>
+            <div class="trend-up">英语（高一）</div>
+        </div>
+        <div class="stat-item">
+            <div class="label">正确率达标班级数</div>
+            <div class="value">28/36</div>
+            <div class="trend-up">达标率77.8%</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+
+        // 1. 初始化图表
+        var ctx = document.getElementById('accuracyChart').getContext('2d');
+        var chartType = 'bar'; // 默认图表类型
+
+        // 基础数据（班级维度）
+        var baseData = {
+            labels: ['高一1班', '高一2班', '高二1班', '高二2班', '高三1班', '高三2班'],
+            datasets: [{
+                label: '答题正确率',
+                data: [82.3, 78.5, 89.6, 92.1, 85.8, 87.2],
+                backgroundColor: 'rgba(22, 93, 255, 0.7)',
+                borderColor: 'rgba(22, 93, 255, 1)',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        };
+
+        // 图表配置
+        var accuracyChart = new Chart(ctx, {
+            type: chartType,
+            data: baseData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return `正确率: ${ctx.raw}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 60,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. 图表类型切换
+        $('.layui-btn[data-type]').on('click', function() {
+            var type = $(this).attr('data-type');
+            // 更新按钮状态
+            $('.layui-btn[data-type]').addClass('layui-btn-primary');
+            $(this).removeClass('layui-btn-primary');
+            // 更新图表类型
+            accuracyChart.config.type = type;
+            accuracyChart.update();
+        });
+
+        // 3. 刷新数据
+        $('#refreshBtn').on('click', function() {
+            layer.load(1);
+            // 模拟数据加载（随机波动±3%）
+            setTimeout(function() {
+                var newData = baseData.datasets[0].data.map(val => {
+                    return Math.max(70, Math.min(95, val + (Math.random() * 6 - 3))).toFixed(1) * 1;
+                });
+                accuracyChart.data.datasets[0].data = newData;
+                accuracyChart.update();
+                layer.closeAll('loading');
+                layer.msg('数据已刷新', {icon: 1, time: 1000});
+            }, 800);
+        });
+
+        // 4. 筛选条件变化（科目/年级）
+        $('#subjectFilter, #gradeFilter').on('change', function() {
+            var subject = $('#subjectFilter').val();
+            var grade = $('#gradeFilter').val();
+            layer.load(1);
+
+            // 模拟筛选后的数据变化
+            setTimeout(function() {
+                // 根据筛选条件更新标签和数据
+                if (grade === '1') {
+                    accuracyChart.data.labels = ['高一1班', '高一2班', '高一3班', '高一4班'];
+                    accuracyChart.data.datasets[0].data = [82.3, 78.5, 80.1, 79.4];
+                } else if (grade === '2') {
+                    accuracyChart.data.labels = ['高二1班', '高二2班', '高二3班', '高二4班'];
+                    accuracyChart.data.datasets[0].data = [89.6, 92.1, 90.5, 88.8];
+                } else if (grade === '3') {
+                    accuracyChart.data.labels = ['高三1班', '高三2班', '高三3班', '高三4班'];
+                    accuracyChart.data.datasets[0].data = [85.8, 87.2, 86.5, 88.1];
+                } else {
+                    // 全部年级
+                    accuracyChart.data.labels = ['高一1班', '高一2班', '高二1班', '高二2班', '高三1班', '高三2班'];
+                    accuracyChart.data.datasets[0].data = [82.3, 78.5, 89.6, 92.1, 85.8, 87.2];
+                }
+                accuracyChart.update();
+                layer.closeAll('loading');
+            }, 600);
+        });
+    });
+</script>
+</body>
+</html>

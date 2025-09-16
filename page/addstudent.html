@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>新增学生</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .title {
+            color: #165DFF;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f2f3f5;
+        }
+        .operation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .batch-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .form-tips {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .student-table th, .student-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border: 1px solid #f2f3f5;
+        }
+        .student-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #333;
+        }
+        .student-table input, .student-table select {
+            width: 100%;
+            height: 34px;
+            padding: 0 8px;
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .student-table input:focus, .student-table select:focus {
+            border-color: #165DFF;
+            outline: none;
+        }
+        .btn-action {
+            padding: 0 8px;
+            height: 28px;
+            line-height: 28px;
+            font-size: 12px;
+        }
+        .add-row {
+            background-color: #f0f7ff;
+            color: #165DFF;
+            border-color: #c9e0ff;
+        }
+        .remove-row {
+            background-color: #fff2f2;
+            color: #F53F3F;
+            border-color: #ffd6d6;
+        }
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .layui-btn {
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin: 0 8px;
+        }
+        .layui-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22,93,255,0.2);
+        }
+        .required-mark {
+            color: #F53F3F;
+            margin-right: 3px;
+        }
+        
+        @media (max-width: 992px) {
+            .student-table {
+                display: block;
+                overflow-x: auto;
+            }
+            .operation-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">
+        <i class="fa fa-user-plus"></i> 新增学生
+    </div>
+    
+    <div class="operation-bar">
+        <div>
+            <button class="layui-btn add-row btn-action" id="addRowBtn">
+                <i class="fa fa-plus"></i> 增加一行
+            </button>
+            <button class="layui-btn layui-btn-primary btn-action" id="addFiveRowsBtn">
+                <i class="fa fa-plus-square"></i> 增加五行
+            </button>
+            <button class="layui-btn layui-btn-primary btn-action" id="clearBtn">
+                <i class="fa fa-trash"></i> 清空
+            </button>
+        </div>
+        
+        <div class="batch-actions">
+            <button class="layui-btn layui-btn-primary btn-action" id="importBtn">
+                <i class="fa fa-upload"></i> 导入
+            </button>
+            <button class="layui-btn layui-btn-primary btn-action" id="templateBtn">
+                <i class="fa fa-file-excel-o"></i> 下载模板
+            </button>
+        </div>
+    </div>
+    
+    <div class="form-tips">
+        <i class="fa fa-info-circle"></i> 带 <span class="required-mark">*</span> 为必填项，最多可同时添加50名学生
+    </div>
+    
+    <form class="layui-form" lay-filter="studentForm">
+        <table class="student-table" id="studentTable">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th><span class="required-mark">*</span>学号</th>
+                    <th><span class="required-mark">*</span>姓名</th>
+                    <th><span class="required-mark">*</span>性别</th>
+                    <th><span class="required-mark">*</span>班级</th>
+                    <th>出生日期</th>
+                    <th>联系电话</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 初始行 -->
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" name="studentNo[]" lay-verify="required" placeholder="请输入学号"></td>
+                    <td><input type="text" name="name[]" lay-verify="required" placeholder="请输入姓名"></td>
+                    <td>
+                        <select name="gender[]" lay-verify="required">
+                            <option value="">请选择</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="className[]" lay-verify="required">
+                            <option value="">请选择</option>
+                            <option value="软件工程2022-1班">软件工程2022-1班</option>
+                            <option value="软件工程2022-2班">软件工程2022-2班</option>
+                            <option value="计算机2022-1班">计算机2022-1班</option>
+                            <option value="人工智能2022-1班">人工智能2022-1班</option>
+                        </select>
+                    </td>
+                    <td><input type="date" name="birthday[]"></td>
+                    <td><input type="text" name="phone[]" placeholder="请输入联系电话"></td>
+                    <td>
+                        <button type="button" class="layui-btn remove-row btn-action" onclick="removeRow(this)">
+                            <i class="fa fa-minus"></i> 删除
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="action-buttons">
+            <button class="layui-btn layui-btn-primary" type="reset">
+                <i class="fa fa-refresh"></i> 重置
+            </button>
+            <button class="layui-btn" lay-submit lay-filter="submitStudents">
+                <i class="fa fa-check"></i> 提交
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        
+        // 初始化表单
+        form.render();
+        
+        // 增加一行
+        $('#addRowBtn').on('click', function() {
+            addStudentRow();
+        });
+        
+        // 增加五行
+        $('#addFiveRowsBtn').on('click', function() {
+            for (var i = 0; i < 5; i++) {
+                // 限制最多50行
+                if ($('#studentTable tbody tr').length >= 50) {
+                    layer.msg('最多只能添加50名学生', {icon: 2});
+                    break;
+                }
+                addStudentRow();
+            }
+        });
+        
+        // 清空表格
+        $('#clearBtn').on('click', function() {
+            if ($('#studentTable tbody tr').length > 1) {
+                layer.confirm('确定要清空所有数据吗？', {icon: 3}, function(index) {
+                    $('#studentTable tbody').html($('#studentTable tbody tr:first').clone());
+                    updateRowNumbers();
+                    form.render('select');
+                    layer.close(index);
+                });
+            } else {
+                layer.msg('至少保留一行数据', {icon: 2});
+            }
+        });
+        
+        // 导入按钮
+        $('#importBtn').on('click', function() {
+            layer.msg('请上传Excel格式的学生数据', {icon: 1});
+            // 实际项目中这里可以打开文件上传对话框
+        });
+        
+        // 下载模板
+        $('#templateBtn').on('click', function() {
+            layer.msg('学生数据模板下载中...', {icon: 1});
+            // 实际项目中这里应该是模板文件的下载链接
+        });
+        
+        // 添加学生行
+        function addStudentRow() {
+            var rowCount = $('#studentTable tbody tr').length;
+            
+            // 限制最多50行
+            if (rowCount >= 50) {
+                layer.msg('最多只能添加50名学生', {icon: 2});
+                return;
+            }
+            
+            // 克隆第一行作为新行
+            var newRow = $('#studentTable tbody tr:first').clone();
+            
+            // 清空输入值
+            newRow.find('input').val('');
+            newRow.find('select').val('');
+            
+            // 添加到表格
+            $('#studentTable tbody').append(newRow);
+            
+            // 更新序号
+            updateRowNumbers();
+            
+            // 重新渲染下拉框
+            form.render('select');
+        }
+        
+        // 更新行序号
+        function updateRowNumbers() {
+            $('#studentTable tbody tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
+        }
+        
+        // 移除行
+        window.removeRow = function(btn) {
+            var rowCount = $('#studentTable tbody tr').length;
+            if (rowCount <= 1) {
+                layer.msg('至少保留一行数据', {icon: 2});
+                return;
+            }
+            
+            $(btn).closest('tr').remove();
+            updateRowNumbers();
+        }
+        
+        // 提交表单
+        form.on('submit(submitStudents)', function(data) {
+            // 收集表单数据
+            var students = [];
+            $('#studentTable tbody tr').each(function(index) {
+                var row = $(this);
+                students.push({
+                    studentNo: row.find('input[name="studentNo[]"]').val(),
+                    name: row.find('input[name="name[]"]').val(),
+                    gender: row.find('select[name="gender[]"]').val(),
+                    className: row.find('select[name="className[]"]').val(),
+                    birthday: row.find('input[name="birthday[]"]').val(),
+                    phone: row.find('input[name="phone[]"]').val()
+                });
+            });
+            
+            // 显示加载
+            layer.load(2);
+            
+            // 模拟提交
+            setTimeout(function() {
+                layer.closeAll('loading');
+                layer.msg('成功添加 ' + students.length + ' 名学生', {icon: 1}, function() {
+                    // 关闭当前页面（如果是弹窗）
+                    if (parent && parent.layer) {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                        // 刷新父页面表格
+                        if (parent.layui.table) {
+                            parent.layui.table.reload('studentTable');
+                        }
+                    }
+                });
+            }, 1000);
+            
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>错题统计</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .title {
+            color: #F53F3F;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f2f3f5;
+        }
+        .filter-area {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .layui-btn {
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .chart-container {
+            height: 350px;
+            margin-bottom: 20px;
+            border: 1px solid #f2f3f5;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .stats-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 180px;
+            background: #fef6f6;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 3px solid #F53F3F;
+        }
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #F53F3F;
+            margin: 8px 0;
+        }
+        .stat-card .desc {
+            color: #666;
+            font-size: 14px;
+        }
+        .common-errors {
+            margin-top: 20px;
+        }
+        .error-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f2f3f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .error-item:last-child {
+            border-bottom: none;
+        }
+        .error-rate {
+            color: #F53F3F;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 标题 -->
+    <div class="title">
+        <i class="fa fa-exclamation-circle"></i> 错题统计分析
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-area">
+        <div class="layui-form-item">
+            <select class="layui-select" id="subjectSelect">
+                <option value="all">全部科目</option>
+                <option value="math">数学</option>
+                <option value="physics">物理</option>
+                <option value="chemistry">化学</option>
+            </select>
+        </div>
+        <div class="layui-form-item">
+            <select class="layui-select" id="knowledgeSelect">
+                <option value="all">全部知识点</option>
+                <option value="basic">基础概念</option>
+                <option value="application">应用题型</option>
+                <option value="comprehensive">综合题型</option>
+            </select>
+        </div>
+        <button class="layui-btn layui-btn-primary" id="refreshBtn">
+            <i class="fa fa-refresh"></i> 刷新
+        </button>
+    </div>
+
+    <!-- 图表展示 -->
+    <div class="chart-container">
+        <canvas id="errorChart"></canvas>
+    </div>
+
+    <!-- 关键数据指标 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="desc">总错题数</div>
+            <div class="number">1,256</div>
+            <div>较上周 +8.3%</div>
+        </div>
+        <div class="stat-card">
+            <div class="desc">平均错误率</div>
+            <div class="number">13.8%</div>
+            <div>较上周 +1.2%</div>
+        </div>
+        <div class="stat-card">
+            <div class="desc">高频错误知识点</div>
+            <div class="number">8个</div>
+            <div>需重点讲解</div>
+        </div>
+    </div>
+
+    <!-- 常见错误题目 -->
+    <div class="common-errors">
+        <h3 style="margin: 15px 0; font-size: 16px;">常见错误题目 TOP5</h3>
+        <div class="error-item">
+            <div>数学 - 函数单调性应用</div>
+            <div class="error-rate">错误率 32.5%</div>
+        </div>
+        <div class="error-item">
+            <div>物理 - 力学平衡问题</div>
+            <div class="error-rate">错误率 28.7%</div>
+        </div>
+        <div class="error-item">
+            <div>数学 - 立体几何体积计算</div>
+            <div class="error-rate">错误率 25.3%</div>
+        </div>
+        <div class="error-item">
+            <div>化学 - 化学反应方程式配平</div>
+            <div class="error-rate">错误率 22.1%</div>
+        </div>
+        <div class="error-item">
+            <div>物理 - 电路分析</div>
+            <div class="error-rate">错误率 19.8%</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+
+        // 初始化图表
+        var ctx = document.getElementById('errorChart').getContext('2d');
+        var errorChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['高一(1)', '高一(2)', '高二(1)', '高二(2)', '高三(1)', '高三(2)'],
+                datasets: [{
+                    label: '错误率',
+                    data: [15.6, 17.2, 13.5, 12.8, 16.3, 11.2],
+                    backgroundColor: 'rgba(245, 63, 63, 0.7)',
+                    borderColor: 'rgba(245, 63, 63, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 30,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `错误率: ${context.raw}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 刷新数据
+        $('#refreshBtn').on('click', function() {
+            layer.load(1);
+            setTimeout(function() {
+                // 模拟数据刷新，随机波动
+                var newData = errorChart.data.datasets[0].data.map(val => {
+                    return Math.max(8, Math.min(25, val + (Math.random() * 4 - 2))).toFixed(1) * 1;
+                });
+                errorChart.data.datasets[0].data = newData;
+                errorChart.update();
+                layer.closeAll('loading');
+                layer.msg('数据已更新', {icon: 1});
+            }, 800);
+        });
+
+        // 筛选条件变化
+        $('#subjectSelect, #knowledgeSelect').on('change', function() {
+            layer.load(1);
+            setTimeout(function() {
+                // 模拟筛选后的数据变化
+                errorChart.update();
+                layer.closeAll('loading');
+            }, 600);
+        });
+    });
+</script>
+</body>
+</html>

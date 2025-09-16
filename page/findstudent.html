@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>查询学生</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .title {
+            color: #165DFF;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f2f3f5;
+        }
+        .filter-section {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .filter-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .filter-title i {
+            margin-right: 8px;
+            color: #165DFF;
+        }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .layui-form-item {
+            margin-bottom: 0;
+        }
+        .field-selection {
+            margin-top: 20px;
+        }
+        .field-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .field-checkbox {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .action-bar {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .layui-btn {
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .layui-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22,93,255,0.2);
+        }
+        .result-area {
+            margin-top: 25px;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .result-stats {
+            color: #666;
+        }
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .layui-table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .layui-table th {
+            background-color: #f9fafb;
+        }
+        .layui-table-page {
+            margin-top: 15px;
+            text-align: right;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-group {
+                flex-direction: column;
+            }
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">
+        <i class="fa fa-search"></i> 学生查询
+    </div>
+    
+    <!-- 筛选条件 -->
+    <div class="filter-section">
+        <div class="filter-title">
+            <i class="fa fa-filter"></i> 查询条件
+        </div>
+        
+        <div class="filter-group">
+            <div class="layui-form-item">
+                <label class="layui-form-label">学号</label>
+                <div class="layui-input-block">
+                    <input type="text" name="studentNo" placeholder="请输入学号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">姓名</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">班级</label>
+                <div class="layui-input-block">
+                    <select name="className">
+                        <option value="">全部班级</option>
+                        <option value="软件工程2022-1班">软件工程2022-1班</option>
+                        <option value="软件工程2022-2班">软件工程2022-2班</option>
+                        <option value="计算机2022-1班">计算机2022-1班</option>
+                        <option value="人工智能2022-1班">人工智能2022-1班</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">性别</label>
+                <div class="layui-input-block">
+                    <select name="gender">
+                        <option value="">全部</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 显示字段选择 -->
+        <div class="field-selection">
+            <div class="filter-title">
+                <i class="fa fa-list-ul"></i> 显示字段
+            </div>
+            
+            <div class="field-grid">
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="学号" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="姓名" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="性别" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="班级" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="出生日期">
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="联系电话">
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="入学时间">
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="showField" lay-skin="primary" title="状态">
+                </div>
+            </div>
+        </div>
+        
+        <!-- 操作按钮 -->
+        <div class="action-bar">
+            <button class="layui-btn layui-btn-primary" id="resetBtn">
+                <i class="fa fa-refresh"></i> 重置
+            </button>
+            <button class="layui-btn" id="searchBtn">
+                <i class="fa fa-search"></i> 开始查询
+            </button>
+        </div>
+    </div>
+    
+    <!-- 查询结果 -->
+    <div class="result-area">
+        <div class="result-header">
+            <div class="result-stats">
+                共查询到 <span style="color: #165DFF; font-weight: 600;">24</span> 条记录
+            </div>
+            <div class="result-actions">
+                <button class="layui-btn layui-btn-primary" id="exportBtn">
+                    <i class="fa fa-download"></i> 导出数据
+                </button>
+                <button class="layui-btn layui-btn-primary" id="printBtn">
+                    <i class="fa fa-print"></i> 打印
+                </button>
+            </div>
+        </div>
+        
+        <table class="layui-table" lay-size="sm" lay-even>
+            <thead>
+                <tr>
+                    <th>学号</th>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>班级</th>
+                    <th>出生日期</th>
+                    <th>联系电话</th>
+                    <th>入学时间</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2022001</td>
+                    <td>张三</td>
+                    <td>男</td>
+                    <td>软件工程2022-1班</td>
+                    <td>2004-03-15</td>
+                    <td>138****5678</td>
+                    <td>2022-09-01</td>
+                    <td><span class="layui-badge layui-bg-green">正常</span></td>
+                </tr>
+                <tr>
+                    <td>2022002</td>
+                    <td>李四</td>
+                    <td>女</td>
+                    <td>软件工程2022-1班</td>
+                    <td>2004-05-22</td>
+                    <td>139****8765</td>
+                    <td>2022-09-01</td>
+                    <td><span class="layui-badge layui-bg-green">正常</span></td>
+                </tr>
+                <tr>
+                    <td>2022003</td>
+                    <td>王五</td>
+                    <td>男</td>
+                    <td>计算机2022-1班</td>
+                    <td>2004-01-10</td>
+                    <td>137****4321</td>
+                    <td>2022-09-01</td>
+                    <td><span class="layui-badge layui-bg-green">正常</span></td>
+                </tr>
+                <tr>
+                    <td>2022004</td>
+                    <td>赵六</td>
+                    <td>女</td>
+                    <td>人工智能2022-1班</td>
+                    <td>2004-08-05</td>
+                    <td>136****9876</td>
+                    <td>2022-09-01</td>
+                    <td><span class="layui-badge layui-bg-orange">请假</span></td>
+                </tr>
+                <tr>
+                    <td>2022005</td>
+                    <td>钱七</td>
+                    <td>男</td>
+                    <td>软件工程2022-2班</td>
+                    <td>2004-04-18</td>
+                    <td>135****2345</td>
+                    <td>2022-09-01</td>
+                    <td><span class="layui-badge layui-bg-green">正常</span></td>
+                </tr>
+				<tr>
+				    <td>2022005</td>
+				    <td>钱七</td>
+				    <td>男</td>
+				    <td>软件工程2022-2班</td>
+				    <td>2004-04-18</td>
+				    <td>135****2345</td>
+				    <td>2022-09-01</td>
+				    <td><span class="layui-badge layui-bg-green">正常</span></td>
+				</tr>
+				<tr>
+				    <td>2022005</td>
+				    <td>钱七</td>
+				    <td>男</td>
+				    <td>软件工程2022-2班</td>
+				    <td>2004-04-18</td>
+				    <td>135****2345</td>
+				    <td>2022-09-01</td>
+				    <td><span class="layui-badge layui-bg-green">正常</span></td>
+				</tr>
+				<tr>
+				    <td>2022005</td>
+				    <td>钱七</td>
+				    <td>男</td>
+				    <td>软件工程2022-2班</td>
+				    <td>2004-04-18</td>
+				    <td>135****2345</td>
+				    <td>2022-09-01</td>
+				    <td><span class="layui-badge layui-bg-green">正常</span></td>
+				</tr>
+            </tbody>
+        </table>
+        
+        <!-- 分页 -->
+        <div id="pagination" class="layui-box layui-laypage layui-laypage-default">
+            <a href="javascript:;" class="layui-laypage-prev">上一页</a>
+            <span class="layui-laypage-curr"><em class="layui-laypage-em"></em><em>1</em></span>
+            <a href="javascript:;">2</a>
+            <a href="javascript:;">3</a>
+            <a href="javascript:;">4</a>
+            <a href="javascript:;">5</a>
+            <a href="javascript:;" class="layui-laypage-next">下一页</a>
+            <span class="layui-laypage-count">共 5 页</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer', 'laypage'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        var laypage = layui.laypage;
+        var $ = layui.jquery;
+        
+        // 初始化表单
+        form.render();
+        
+        // 开始查询
+        $('#searchBtn').on('click', function() {
+            // 获取查询条件
+            var studentNo = $('input[name="studentNo"]').val();
+            var name = $('input[name="name"]').val();
+            var className = $('select[name="className"]').val();
+            var gender = $('select[name="gender"]').val();
+            
+            // 获取选中的显示字段
+            var showFields = [];
+            $('input[name="showField"]:checked').each(function() {
+                showFields.push($(this).attr('title'));
+            });
+            
+            if (showFields.length === 0) {
+                layer.msg('请至少选择一个显示字段', {icon: 2});
+                return;
+            }
+            
+            // 显示加载
+            layer.load(2);
+            
+            // 模拟查询过程
+            setTimeout(function() {
+                layer.closeAll('loading');
+                
+                // 这里可以根据查询条件动态更新表格数据
+                // 实际项目中会根据后端返回结果更新表格
+                
+                layer.msg('查询完成', {icon: 1, time: 1000});
+            }, 800);
+        });
+        
+        // 重置查询条件
+        $('#resetBtn').on('click', function() {
+            $('input[name="studentNo"]').val('');
+            $('input[name="name"]').val('');
+            $('select[name="className"]').val('');
+            $('select[name="gender"]').val('');
+            
+            // 重新渲染表单
+            form.render();
+        });
+        
+        // 导出数据
+        $('#exportBtn').on('click', function() {
+            // 获取选中的显示字段
+            var exportFields = [];
+            $('input[name="showField"]:checked').each(function() {
+                exportFields.push($(this).attr('title'));
+            });
+            
+            if (exportFields.length === 0) {
+                layer.msg('请至少选择一个导出字段', {icon: 2});
+                return;
+            }
+            
+            // 显示导出进度
+            var loadIndex = layer.load(2, {
+                shade: [0.3, '#fff']
+            });
+            
+            // 模拟导出过程
+            setTimeout(function() {
+                layer.close(loadIndex);
+                layer.msg('数据导出成功', {icon: 1});
+            }, 1200);
+        });
+        
+        // 打印
+        $('#printBtn').on('click', function() {
+            layer.confirm('确定要打印当前查询结果吗？', {icon: 3}, function(index) {
+                layer.close(index);
+                layer.msg('准备打印...', {icon: 1});
+                // 实际项目中调用打印API
+                // window.print();
+            });
+        });
+        
+        // 初始化分页（实际项目中根据总记录数动态生成）
+        laypage.render({
+            elem: 'pagination'
+            ,count: 24 // 数据总数
+            ,limit: 5 // 每页显示条数
+            ,limits: [5, 10, 15, 20]
+            ,layout: ['prev', 'page', 'next', 'count', 'limit']
+            ,jump: function(obj, first) {
+                // obj包含了当前分页的所有参数，比如：
+                // console.log('当前页: '+ obj.curr);
+                // console.log('当前每页条数: '+ obj.limit);
+                
+                // 首次不执行
+                if(!first){
+                    // 实际项目中通过AJAX加载对应页数据
+                    layer.load(1);
+                    setTimeout(function() {
+                        layer.closeAll('loading');
+                    }, 500);
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

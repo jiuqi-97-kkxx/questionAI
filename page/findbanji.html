@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级列表</title>
+    <style>
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            padding: 30px;
+        }
+        /* 容器样式 */
+        .class-list-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+        }
+        /* 标题样式 */
+        .list-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .list-title i {
+            color: #1E9FFF;
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        /* 表格样式 */
+        .class-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        .class-table th {
+            background-color: #f8f9fa;
+            color: #666;
+            font-weight: 600;
+            padding: 14px 10px;
+            border: 1px solid #eee;
+            font-size: 14px;
+        }
+        .class-table td {
+            color: #333;
+            padding: 14px 10px;
+            border: 1px solid #eee;
+            font-size: 14px;
+        }
+        .class-table tr:hover {
+            background-color: #fafafa;
+        }
+        /* 状态标签样式 */
+        .status-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-normal {
+            background-color: #e6f7ef;
+            color: #00b42a;
+        }
+        .status-graduated {
+            background-color: #f5f5f5;
+            color: #999;
+        }
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .class-list-container {
+                padding: 15px;
+            }
+            .class-table th, .class-table td {
+                padding: 10px 5px;
+                font-size: 12px;
+            }
+            .list-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+    <!-- 引入图标库（仅用于标题图标，不影响列表显示） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="class-list-container">
+        <!-- 列表标题 -->
+        <div class="list-title">
+            <i class="fa fa-list"></i>
+            班级列表
+        </div>
+
+        <!-- 班级列表表格（直接显示，无需加载） -->
+        <table class="class-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>班级名称</th>
+                    <th>所属专业</th>
+                    <th>班级人数</th>
+                    <th>班主任</th>
+                    <th>班主任电话</th>
+                    <th>入学年份</th>
+                    <th>班级状态</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 班级数据1 -->
+                <tr>
+                    <td>1</td>
+                    <td>软件2024-1班</td>
+                    <td>软件工程</td>
+                    <td>45</td>
+                    <td>张明</td>
+                    <td>13800138001</td>
+                    <td>2024级</td>
+                    <td><span class="status-tag status-normal">正常在读</span></td>
+                    <td>2024-09-01</td>
+                </tr>
+                <!-- 班级数据2 -->
+                <tr>
+                    <td>2</td>
+                    <td>软件2024-2班</td>
+                    <td>软件工程</td>
+                    <td>42</td>
+                    <td>李华</td>
+                    <td>13900139002</td>
+                    <td>2024级</td>
+                    <td><span class="status-tag status-normal">正常在读</span></td>
+                    <td>2024-09-01</td>
+                </tr>
+                <!-- 班级数据3 -->
+                <tr>
+                    <td>3</td>
+                    <td>计科2023-1班</td>
+                    <td>计算机科学与技术</td>
+                    <td>38</td>
+                    <td>王芳</td>
+                    <td>13700137003</td>
+                    <td>2023级</td>
+                    <td><span class="status-tag status-normal">正常在读</span></td>
+                    <td>2023-09-01</td>
+                </tr>
+                <!-- 班级数据4 -->
+                <tr>
+                    <td>4</td>
+                    <td>计科2023-2班</td>
+                    <td>计算机科学与技术</td>
+                    <td>40</td>
+                    <td>刘强</td>
+                    <td>13600136004</td>
+                    <td>2023级</td>
+                    <td><span class="status-tag status-normal">正常在读</span></td>
+                    <td>2023-09-01</td>
+                </tr>
+                <!-- 班级数据5 -->
+                <tr>
+                    <td>5</td>
+                    <td>AI2022-1班</td>
+                    <td>人工智能</td>
+                    <td>35</td>
+                    <td>赵静</td>
+                    <td>13500135005</td>
+                    <td>2022级</td>
+                    <td><span class="status-tag status-normal">正常在读</span></td>
+                    <td>2022-09-01</td>
+                </tr>
+                <!-- 班级数据6 -->
+                <tr>
+                    <td>6</td>
+                    <td>大数据2022-1班</td>
+                    <td>数据科学与大数据技术</td>
+                    <td>36</td>
+                    <td>陈杰</td>
+                    <td>13400134006</td>
+                    <td>2022级</td>
+                    <td><span class="status-tag status-normal">正常在读</span></td>
+                    <td>2022-09-01</td>
+                </tr>
+                <!-- 班级数据7 -->
+                <tr>
+                    <td>7</td>
+                    <td>网络2021-1班</td>
+                    <td>网络工程</td>
+                    <td>32</td>
+                    <td>杨丽</td>
+                    <td>13300133007</td>
+                    <td>2021级</td>
+                    <td><span class="status-tag status-graduated">已毕业</span></td>
+                    <td>2021-09-01</td>
+                </tr>
+                <!-- 班级数据8 -->
+                <tr>
+                    <td>8</td>
+                    <td>软件2021-1班</td>
+                    <td>软件工程</td>
+                    <td>43</td>
+                    <td>吴刚</td>
+                    <td>13200132008</td>
+                    <td>2021级</td>
+                    <td><span class="status-tag status-graduated">已毕业</span></td>
+                    <td>2021-09-01</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

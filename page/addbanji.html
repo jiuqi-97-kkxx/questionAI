@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加班级</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css" media="all">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .layuimini-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .layuimini-main {
+            padding: 15px 0;
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #165DFF;
+            font-weight: 600;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: #165DFF;
+            border-radius: 3px;
+        }
+        
+        .layui-form-item {
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .layui-form-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .layui-form-label {
+            padding: 10px 15px;
+            width: 130px;
+            font-weight: 500;
+            color: #333;
+            background-color: #f9fafb;
+            border-radius: 6px 0 0 6px;
+            box-shadow: inset 0 0 0 1px #eee;
+        }
+        
+        .layui-input-block {
+            margin-left: 160px;
+        }
+        
+        .layui-input, .layui-select, .layui-textarea {
+            height: 42px;
+            padding: 0 15px;
+            border-radius: 0 6px 6px 0;
+            border-color: #eee;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
+            border-color: #165DFF;
+            box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
+            outline: none;
+        }
+        
+        .layui-textarea {
+            min-height: 100px;
+            border-radius: 6px;
+        }
+        
+        .layui-radio {
+            margin: 0 15px 0 0;
+        }
+        
+        .layui-radio span {
+            padding-left: 5px;
+            padding-right: 15px;
+        }
+        
+        .layui-btn {
+            height: 42px;
+            line-height: 42px;
+            padding: 0 25px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .layui-btn-primary {
+            background-color: #f2f3f5;
+            color: #4E5969;
+            border-color: #e5e6eb;
+        }
+        
+        .layui-btn-primary:hover {
+            background-color: #e5e6eb;
+            color: #1D2129;
+            border-color: #d9d9d9;
+        }
+        
+        .layui-btn:not(.layui-btn-primary) {
+            background-color: #165DFF;
+            border-color: #165DFF;
+        }
+        
+        .layui-btn:not(.layui-btn-primary):hover {
+            background-color: #0E42D2;
+            border-color: #0E42D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.2);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #eee;
+        }
+        
+        /* 输入框前缀图标 */
+        .input-icon {
+            position: relative;
+        }
+        
+        .input-icon .layui-input {
+            padding-left: 40px;
+        }
+        
+        .input-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            font-size: 16px;
+        }
+        
+        /* 校验提示样式 */
+        .verify-tip {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #F56C6C;
+            background-color: #FFF2F0;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        /* 校验通过提示 */
+        .verify-success {
+            color: #67C23A;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .layuimini-container {
+                margin: 15px;
+                padding: 15px;
+            }
+            
+            .layui-form-label {
+                width: 100px;
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .layui-input-block {
+                margin-left: 130px;
+            }
+            
+            .layui-btn {
+                padding: 0 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .layui-form-item {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .layui-form-label {
+                width: 100%;
+                border-radius: 6px 6px 0 0;
+                margin-bottom: -1px;
+            }
+            
+            .layui-input-block {
+                margin-left: 0;
+                width: 100%;
+                position: relative; /* 为校验提示提供定位父容器 */
+            }
+            
+            .layui-input, .layui-select {
+                border-radius: 0 0 6px 6px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .layui-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <h2 class="page-title"><i class="fa fa-users mr-2"></i>添加班级信息</h2>
+        
+        <form class="layui-form" lay-filter="addClassForm">
+            <!-- 班级名称（增加格式校验：必须包含年级和班级编号） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班级名称</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-tag"></i>
+                    <input type="text" name="className" lay-verify="required|checkClassName" 
+                           placeholder="请输入标准格式（如：软件2024-1班）" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 所属专业（无额外校验，保持下拉选择） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">所属专业</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-graduation-cap"></i>
+                    <select name="major" lay-verify="required">
+                        <option value="">请选择专业</option>
+                        <option value="软件工程">软件工程</option>
+                        <option value="计算机科学与技术">计算机科学与技术</option>
+                        <option value="人工智能">人工智能</option>
+                        <option value="数据科学与大数据技术">数据科学与大数据技术</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 班级人数（增加范围校验：10-60人，避免不合理数值） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班级人数</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-user"></i>
+                    <input type="number" name="studentCount" lay-verify="required|number|checkStudentCount" 
+                           min="1" max="100" placeholder="请输入10-60之间的人数" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 班主任（增加姓名格式校验：2-4个中文字符） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班主任</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-user-circle"></i>
+                    <input type="text" name="headTeacher" lay-verify="required|checkTeacherName" 
+                           placeholder="请输入班主任姓名（2-4个中文字符）" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 入学年份（增加年份有效性校验：近10年且不超过当前年份） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">入学年份</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-calendar"></i>
+                    <input type="text" name="enrollYear" lay-verify="required|number|checkEnrollYear" 
+                           placeholder="请输入入学年份（如：2024）" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 班级状态（无额外校验） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班级状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="status" value="1" title="正常" checked>
+                    <input type="radio" name="status" value="0" title="已毕业">
+                </div>
+            </div>
+
+            <!-- 班级备注（无强制校验） -->
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">班级备注</label>
+                <div class="layui-input-block">
+                    <textarea name="remark" placeholder="请输入班级备注信息（不超过200字）" class="layui-textarea" maxlength="200"></textarea>
+                    <span class="verify-success" id="remarkCount">0/200 字</span>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="layui-form-item form-actions">
+                <button class="layui-btn" lay-submit lay-filter="submitAddClass">
+                    <i class="fa fa-check mr-1"></i>提交
+                </button>
+                <button type="reset" class="layui-btn layui-btn-primary" id="resetBtn">
+                    <i class="fa fa-refresh mr-1"></i>重置
+                </button>
+                <button type="button" class="layui-btn layui-btn-primary" id="previewBtn">
+                    <i class="fa fa-eye mr-1"></i>预览信息
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'layer', 'jquery'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.jquery;
+
+        // -------------------------- 1. 自定义校验规则 --------------------------
+        // 1.1 班级名称格式校验（规则：包含专业关键词+4位年份+“-”+1-2位班级编号+“班”）
+        form.verify({
+            checkClassName: function(value) {
+                var reg = /^[^\d]{2,8}\d{4}-\d{1,2}班$/; // 示例：软件2024-1班、计算机科学2023-10班
+                if (!reg.test(value)) {
+                    return '班级名称格式错误（例：软件2024-1班）';
+                }
+            },
+            // 1.2 班级人数校验（10-60人，避免过小或过大班级）
+            checkStudentCount: function(value) {
+                var count = parseInt(value);
+                if (count < 10 || count > 60) {
+                    return '班级人数需在10-60人之间';
+                }
+            },
+            // 1.3 班主任姓名校验（2-4个中文字符）
+            checkTeacherName: function(value) {
+                var reg = /^[\u4e00-\u9fa5]{2,4}$/;
+                if (!reg.test(value)) {
+                    return '班主任姓名需为2-4个中文字符';
+                }
+            },
+            // 1.4 入学年份校验（近10年且不超过当前年份）
+            checkEnrollYear: function(value) {
+                var year = parseInt(value);
+                var currentYear = new Date().getFullYear();
+                if (year < currentYear - 10 || year > currentYear) {
+                    return '入学年份需在近10年且不超过当前年份';
+                }
+                if (value.length !== 4) {
+                    return '入学年份需为4位数字（例：2024）';
+                }
+            }
+        });
+
+        // -------------------------- 2. 实时校验反馈 --------------------------
+        // 2.1 备注输入字数统计
+        $('textarea[name="remark"]').on('input', function() {
+            var length = $(this).val().length;
+            $('#remarkCount').text(length + '/200 字');
+            // 超过字数时提示
+            if (length > 200) {
+                $('#remarkCount').css('color', '#F56C6C').text('已超过200字限制');
+            } else {
+                $('#remarkCount').css('color', '#67C23A');
+            }
+        });
+
+        // 2.2 输入框失焦时触发校验（增强用户体验）
+        $('input, select').on('blur', function() {
+            var name = $(this).attr('name');
+            var value = $(this).val();
+            var verifyRule = $(this).attr('lay-verify');
+            
+            if (verifyRule && value) {
+                // 触发layui的校验逻辑
+                var result = form.validate(name, value);
+                if (result !== true) {
+                    // 显示错误提示
+                    showVerifyTip($(this), result);
+                } else {
+                    // 移除错误提示
+                    removeVerifyTip($(this));
+                    // 显示校验通过提示（可选）
+                    showSuccessTip($(this), '格式正确');
+                }
+            }
+        });
+
+        // 2.3 输入框聚焦时移除校验提示
+        $('input, select').on('focus', function() {
+            removeVerifyTip($(this));
+            $(this).next('.verify<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加班级</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css" media="all">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .layuimini-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .layuimini-main {
+            padding: 15px 0;
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #165DFF;
+            font-weight: 600;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: #165DFF;
+            border-radius: 3px;
+        }
+        
+        .layui-form-item {
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .layui-form-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .layui-form-label {
+            padding: 10px 15px;
+            width: 130px;
+            font-weight: 500;
+            color: #333;
+            background-color: #f9fafb;
+            border-radius: 6px 0 0 6px;
+            box-shadow: inset 0 0 0 1px #eee;
+        }
+        
+        .layui-input-block {
+            margin-left: 160px;
+        }
+        
+        .layui-input, .layui-select, .layui-textarea {
+            height: 42px;
+            padding: 0 15px;
+            border-radius: 0 6px 6px 0;
+            border-color: #eee;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
+            border-color: #165DFF;
+            box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
+            outline: none;
+        }
+        
+        .layui-textarea {
+            min-height: 100px;
+            border-radius: 6px;
+        }
+        
+        .layui-radio {
+            margin: 0 15px 0 0;
+        }
+        
+        .layui-radio span {
+            padding-left: 5px;
+            padding-right: 15px;
+        }
+        
+        .layui-btn {
+            height: 42px;
+            line-height: 42px;
+            padding: 0 25px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .layui-btn-primary {
+            background-color: #f2f3f5;
+            color: #4E5969;
+            border-color: #e5e6eb;
+        }
+        
+        .layui-btn-primary:hover {
+            background-color: #e5e6eb;
+            color: #1D2129;
+            border-color: #d9d9d9;
+        }
+        
+        .layui-btn:not(.layui-btn-primary) {
+            background-color: #165DFF;
+            border-color: #165DFF;
+        }
+        
+        .layui-btn:not(.layui-btn-primary):hover {
+            background-color: #0E42D2;
+            border-color: #0E42D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.2);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #eee;
+        }
+        
+        /* 输入框前缀图标 */
+        .input-icon {
+            position: relative;
+        }
+        
+        .input-icon .layui-input {
+            padding-left: 40px;
+        }
+        
+        .input-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            font-size: 16px;
+        }
+        
+        /* 校验提示样式 */
+        .verify-tip {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #F56C6C;
+            background-color: #FFF2F0;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        /* 校验通过提示 */
+        .verify-success {
+            color: #67C23A;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .layuimini-container {
+                margin: 15px;
+                padding: 15px;
+            }
+            
+            .layui-form-label {
+                width: 100px;
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .layui-input-block {
+                margin-left: 130px;
+            }
+            
+            .layui-btn {
+                padding: 0 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .layui-form-item {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .layui-form-label {
+                width: 100%;
+                border-radius: 6px 6px 0 0;
+                margin-bottom: -1px;
+            }
+            
+            .layui-input-block {
+                margin-left: 0;
+                width: 100%;
+                position: relative; /* 为校验提示提供定位父容器 */
+            }
+            
+            .layui-input, .layui-select {
+                border-radius: 0 0 6px 6px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .layui-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <h2 class="page-title"><i class="fa fa-users mr-2"></i>添加班级信息</h2>
+        
+        <form class="layui-form" lay-filter="addClassForm">
+            <!-- 班级名称（增加格式校验：必须包含年级和班级编号） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班级名称</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-tag"></i>
+                    <input type="text" name="className" lay-verify="required|checkClassName" 
+                           placeholder="请输入标准格式（如：软件2024-1班）" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 所属专业（无额外校验，保持下拉选择） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">所属专业</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-graduation-cap"></i>
+                    <select name="major" lay-verify="required">
+                        <option value="">请选择专业</option>
+                        <option value="软件工程">软件工程</option>
+                        <option value="计算机科学与技术">计算机科学与技术</option>
+                        <option value="人工智能">人工智能</option>
+                        <option value="数据科学与大数据技术">数据科学与大数据技术</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 班级人数（增加范围校验：10-60人，避免不合理数值） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班级人数</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-user"></i>
+                    <input type="number" name="studentCount" lay-verify="required|number|checkStudentCount" 
+                           min="1" max="100" placeholder="请输入10-60之间的人数" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 班主任（增加姓名格式校验：2-4个中文字符） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班主任</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-user-circle"></i>
+                    <input type="text" name="headTeacher" lay-verify="required|checkTeacherName" 
+                           placeholder="请输入班主任姓名（2-4个中文字符）" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 入学年份（增加年份有效性校验：近10年且不超过当前年份） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">入学年份</label>
+                <div class="layui-input-block input-icon">
+                    <i class="fa fa-calendar"></i>
+                    <input type="text" name="enrollYear" lay-verify="required|number|checkEnrollYear" 
+                           placeholder="请输入入学年份（如：2024）" 
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- 班级状态（无额外校验） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">班级状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="status" value="1" title="正常" checked>
+                    <input type="radio" name="status" value="0" title="已毕业">
+                </div>
+            </div>
+
+            <!-- 班级备注（无强制校验） -->
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">班级备注</label>
+                <div class="layui-input-block">
+                    <textarea name="remark" placeholder="请输入班级备注信息（不超过200字）" class="layui-textarea" maxlength="200"></textarea>
+                    <span class="verify-success" id="remarkCount">0/200 字</span>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="layui-form-item form-actions">
+                <button class="layui-btn" lay-submit lay-filter="submitAddClass">
+                    <i class="fa fa-check mr-1"></i>提交
+                </button>
+                <button type="reset" class="layui-btn layui-btn-primary" id="resetBtn">
+                    <i class="fa fa-refresh mr-1"></i>重置
+                </button>
+                <button type="button" class="layui-btn layui-btn-primary" id="previewBtn">
+                    <i class="fa fa-eye mr-1"></i>预览信息
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'layer', 'jquery'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.jquery;
+
+        // -------------------------- 1. 自定义校验规则 --------------------------
+        // 1.1 班级名称格式校验（规则：包含专业关键词+4位年份+“-”+1-2位班级编号+“班”）
+        form.verify({
+            checkClassName: function(value) {
+                var reg = /^[^\d]{2,8}\d{4}-\d{1,2}班$/; // 示例：软件2024-1班、计算机科学2023-10班
+                if (!reg.test(value)) {
+                    return '班级名称格式错误（例：软件2024-1班）';
+                }
+            },
+            // 1.2 班级人数校验（10-60人，避免过小或过大班级）
+            checkStudentCount: function(value) {
+                var count = parseInt(value);
+                if (count < 10 || count > 60) {
+                    return '班级人数需在10-60人之间';
+                }
+            },
+            // 1.3 班主任姓名校验（2-4个中文字符）
+            checkTeacherName: function(value) {
+                var reg = /^[\u4e00-\u9fa5]{2,4}$/;
+                if (!reg.test(value)) {
+                    return '班主任姓名需为2-4个中文字符';
+                }
+            },
+            // 1.4 入学年份校验（近10年且不超过当前年份）
+            checkEnrollYear: function(value) {
+                var year = parseInt(value);
+                var currentYear = new Date().getFullYear();
+                if (year < currentYear - 10 || year > currentYear) {
+                    return '入学年份需在近10年且不超过当前年份';
+                }
+                if (value.length !== 4) {
+                    return '入学年份需为4位数字（例：2024）';
+                }
+            }
+        });
+
+        // -------------------------- 2. 实时校验反馈 --------------------------
+        // 2.1 备注输入字数统计
+        $('textarea[name="remark"]').on('input', function() {
+            var length = $(this).val().length;
+            $('#remarkCount').text(length + '/200 字');
+            // 超过字数时提示
+            if (length > 200) {
+                $('#remarkCount').css('color', '#F56C6C').text('已超过200字限制');
+            } else {
+                $('#remarkCount').css('color', '#67C23A');
+            }
+        });
+
+        // 2.2 输入框失焦时触发校验（增强用户体验）
+        $('input, select').on('blur', function() {
+            var name = $(this).attr('name');
+            var value = $(this).val();
+            var verifyRule = $(this).attr('lay-verify');
+            
+            if (verifyRule && value) {
+                // 触发layui的校验逻辑
+                var result = form.validate(name, value);
+                if (result !== true) {
+                    // 显示错误提示
+                    showVerifyTip($(this), result);
+                } else {
+                    // 移除错误提示
+                    removeVerifyTip($(this));
+                    // 显示校验通过提示（可选）
+                    showSuccessTip($(this), '格式正确');
+                }
+            }
+        });
+
+        // 2.3 输入框聚焦时移除校验提示
+        $('input, select').on('focus', function() {
+            removeVerifyTip($(this));
+            $(this).next('.verify

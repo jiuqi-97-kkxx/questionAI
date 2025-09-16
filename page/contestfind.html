@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛事查询</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#EC4899',
+                        secondary: '#64748B',
+                        upcoming: '#10B981',
+                        ongoing: '#F59E0B',
+                        completed: '#9CA3AF'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .event-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .event-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.1), 0 8px 10px -6px rgba(236, 72, 153, 0.1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold text-gray-800 mb-2">
+                <i class="fa fa-trophy text-primary mr-3"></i>赛事查询系统
+            </h1>
+            <p class="text-gray-600 text-lg">查找各类比赛和赛事信息</p>
+        </header>
+        
+        <!-- 搜索区域 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="请输入赛事名称或关键词..." 
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                >
+                <button 
+                    id="searchBtn" 
+                    class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                >
+                    <i class="fa fa-search"></i>
+                    <span>搜索</span>
+                </button>
+                <button 
+                    id="clearBtn" 
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all"
+                >
+                    清空
+                </button>
+            </div>
+            
+            <!-- 赛事类型筛选 -->
+            <div class="mt-5">
+                <p class="text-gray-500 mb-2">赛事类型:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="event-type bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-pink-200 transition-colors">全部</span>
+                    <span class="event-type bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-pink-200 transition-colors">体育竞技</span>
+                    <span class="event-type bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-pink-200 transition-colors">学术科技</span>
+                    <span class="event-type bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-pink-200 transition-colors">文艺表演</span>
+                    <span class="event-type bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-pink-200 transition-colors">创新创业</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果区域 -->
+        <div id="results" class="space-y-4">
+            <!-- 结果将通过JavaScript动态插入 -->
+            <div id="initialMessage" class="text-center py-12 text-gray-500">
+                <i class="fa fa-flag-o fa-3x mb-4 opacity-30"></i>
+                <p>请输入赛事名称进行搜索</p>
+            </div>
+            
+            <div id="loading" class="hidden text-center py-12">
+                <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                <p class="mt-4 text-gray-600">正在搜索...</p>
+            </div>
+            
+            <div id="noResults" class="hidden text-center py-12 bg-white rounded-xl p-6 shadow-md">
+                <i class="fa fa-frown-o fa-3x text-gray-400 mb-4"></i>
+                <p class="text-gray-600">未找到相关赛事，请尝试其他关键词</p>
+            </div>
+            
+            <div id="resultsList" class="hidden space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟赛事数据
+        const events = [
+            { 
+                id: 1, 
+                name: "全国大学生篮球联赛", 
+                type: "体育竞技", 
+                status: "upcoming", // upcoming, ongoing, completed
+                startDate: "2023-11-15", 
+                endDate: "2023-12-10",
+                location: "北京市体育馆",
+                organizer: "中国大学生体育协会",
+                description: "全国高校最高水平的篮球赛事，汇聚全国顶尖大学篮球队同台竞技。",
+                image: "https://picsum.photos/id/237/400/200"
+            },
+            { 
+                id: 2, 
+                name: "全国青少年科技创新大赛", 
+                type: "学术科技", 
+                status: "ongoing",
+                startDate: "2023-10-01", 
+                endDate: "2023-11-30",
+                location: "线上+线下",
+                organizer: "中国科学技术协会",
+                description: "面向全国青少年的科技竞赛，展示青少年科技创新成果。",
+                image: "https://picsum.photos/id/239/400/200"
+            },
+            { 
+                id: 3, 
+                name: "全国大学生艺术展演", 
+                type: "文艺表演", 
+                status: "upcoming",
+                startDate: "2024-01-05", 
+                endDate: "2024-01-20",
+                location: "上海市大剧院",
+                organizer: "教育部体育卫生与艺术教育司",
+                description: "全国大学生艺术展示平台，包括声乐、舞蹈、戏剧等多个类别。",
+                image: "https://picsum.photos/id/240/400/200"
+            },
+            { 
+                id: 4, 
+                name: "互联网+大学生创新创业大赛", 
+                type: "创新创业", 
+                status: "completed",
+                startDate: "2023-05-10", 
+                endDate: "2023-09-20",
+                location: "浙江大学",
+                organizer: "教育部等多部门",
+                description: "全国性的大学生创新创业比赛，旨在激发学生创新精神。",
+                image: "https://picsum.photos/id/241/400/200"
+            },
+            { 
+                id: 5, 
+                name: "全国大学生数学建模竞赛", 
+                type: "学术科技", 
+                status: "completed",
+                startDate: "2023-09-08", 
+                endDate: "2023-09-11",
+                location: "全国各高校",
+                organizer: "中国工业与应用数学学会",
+                description: "培养大学生数学建模能力和解决实际问题能力的竞赛。",
+                image: "https://picsum.photos/id/242/400/200"
+            },
+            { 
+                id: 6, 
+                name: "全国大学生足球锦标赛", 
+                type: "体育竞技", 
+                status: "upcoming",
+                startDate: "2023-12-01", 
+                endDate: "2023-12-25",
+                location: "广州市体育中心",
+                organizer: "中国大学生体育协会",
+                description: "全国高校足球最高水平赛事，展示大学生足球运动水平。",
+                image: "https://picsum.photos/id/243/400/200"
+            }
+        ];
+
+        // DOM元素
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const initialMessage = document.getElementById('initialMessage');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const resultsList = document.getElementById('resultsList');
+        const eventTypes = document.querySelectorAll('.event-type');
+        
+        let activeType = '全部'; // 默认显示全部类型
+
+        // 搜索功能
+        function searchEvents() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            
+            // 显示加载状态
+            initialMessage.classList.add('hidden');
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                // 过滤结果
+                const filtered = events.filter(event => {
+                    const matchesKeyword = event.name.toLowerCase().includes(keyword) || 
+                                         event.description.toLowerCase().includes(keyword);
+                    const matchesType = activeType === '全部' || event.type === activeType;
+                    return matchesKeyword && matchesType;
+                });
+                
+                // 隐藏加载状态
+                loading.classList.add('hidden');
+                
+                // 显示结果
+                if (filtered.length > 0) {
+                    displayResults(filtered);
+                    resultsList.classList.remove('hidden');
+                } else {
+                    noResults.classList.remove('hidden');
+                }
+            }, 600);
+        }
+
+        // 获取状态显示文本和样式
+        function getStatusInfo(status) {
+            switch(status) {
+                case 'upcoming':
+                    return { text: '即将开始', class: 'bg-upcoming/10 text-upcoming' };
+                case 'ongoing':
+                    return { text: '进行中', class: 'bg-ongoing/10 text-ongoing' };
+                case 'completed':
+                    return { text: '已结束', class: 'bg-completed/10 text-completed' };
+                default:
+                    return { text: '未知', class: 'bg-gray-100 text-gray-600' };
+            }
+        }
+
+        // 格式化日期显示
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        // 显示搜索结果
+        function displayResults(results) {
+            resultsList.innerHTML = '';
+            
+            results.forEach(event => {
+                const statusInfo = getStatusInfo(event.status);
+                const startDate = formatDate(event.startDate);
+                const endDate = formatDate(event.endDate);
+                
+                const card = document.createElement('div');
+                card.className = 'event-card bg-white rounded-xl overflow-hidden shadow-md';
+                card.innerHTML = `
+                    <div class="md:flex">
+                        <div class="md:w-1/3">
+                            <img src="${event.image}" alt="${event.name}" class="h-48 w-full object-cover md:h-full">
+                        </div>
+                        <div class="p-5 md:w-2/3">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">${event.name}</h3>
+                                <span class="px-2 py-1 rounded-full text-xs font-medium ${statusInfo.class}">${statusInfo.text}</span>
+                            </div>
+                            
+                            <div class="text-sm text-gray-600 mb-3">
+                                <span class="inline-block px-2 py-1 bg-gray-100 rounded-full mr-2 mb-2">${event.type}</span>
+                            </div>
+                            
+                            <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                <div class="flex items-start">
+                                    <i class="fa fa-calendar text-primary mr-2 mt-1 w-4 text-center"></i>
+                                    <span>${startDate} - ${endDate}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fa fa-map-marker text-primary mr-2 mt-1 w-4 text-center"></i>
+                                    <span>${event.location}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fa fa-user-o text-primary mr-2 mt-1 w-4 text-center"></i>
+                                    <span>主办方: ${event.organizer}</span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-gray-700 text-sm mb-4 line-clamp-2">${event.description}</p>
+                            
+                            <button class="text-primary hover:text-primary/80 font-medium text-sm transition-colors">
+                                查看详情 <i class="fa fa-angle-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                resultsList.appendChild(card);
+            });
+        }
+
+        // 清空搜索
+        function clearSearch() {
+            searchInput.value = '';
+            activeType = '全部';
+            // 重置类型筛选样式
+            eventTypes.forEach(type => {
+                if (type.textContent === '全部') {
+                    type.classList.add('bg-pink-200', 'font-medium');
+                } else {
+                    type.classList.remove('bg-pink-200', 'font-medium');
+                }
+            });
+            // 重置显示
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.add('hidden');
+            initialMessage.classList.remove('hidden');
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', searchEvents);
+        clearBtn.addEventListener('click', clearSearch);
+        
+        // 回车搜索
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchEvents();
+            }
+        });
+        
+        // 类型筛选
+        eventTypes.forEach(type => {
+            type.addEventListener('click', () => {
+                // 更新活跃类型
+                activeType = type.textContent;
+                
+                // 更新类型筛选样式
+                eventTypes.forEach(t => {
+                    if (t.textContent === activeType) {
+                        t.classList.add('bg-pink-200', 'font-medium');
+                    } else {
+                        t.classList.remove('bg-pink-200', 'font-medium');
+                    }
+                });
+                
+                // 执行搜索
+                searchEvents();
+            });
+        });
+    </script>
+</body>
+</html>
+    

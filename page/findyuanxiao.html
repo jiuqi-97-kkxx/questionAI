@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>院校查询</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#64748B',
+                        accent: '#10B981',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold text-gray-800 mb-2">
+                <i class="fa fa-university text-primary mr-3"></i>院校查询系统
+            </h1>
+            <p class="text-gray-600 text-lg">快速查找全国各大高等院校信息</p>
+        </header>
+        
+        <!-- 搜索区域 -->
+        <div class="bg-white rounded-xl p-6 card-shadow mb-8 transform transition-all hover:shadow-lg">
+            <div class="flex flex-col md:flex-row gap-4">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="请输入院校名称或关键词..." 
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                >
+                <button 
+                    id="searchBtn" 
+                    class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                >
+                    <i class="fa fa-search"></i>
+                    <span>搜索</span>
+                </button>
+                <button 
+                    id="clearBtn" 
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all"
+                >
+                    清空
+                </button>
+            </div>
+            
+            <!-- 热门搜索标签 -->
+            <div class="mt-5">
+                <p class="text-gray-500 mb-2">热门搜索:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition-colors">北京大学</span>
+                    <span class="tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition-colors">清华大学</span>
+                    <span class="tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition-colors">复旦大学</span>
+                    <span class="tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition-colors">浙江大学</span>
+                    <span class="tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition-colors">南京大学</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果区域 -->
+        <div id="results" class="space-y-4">
+            <!-- 结果将通过JavaScript动态插入 -->
+            <div id="initialMessage" class="text-center py-12 text-gray-500">
+                <i class="fa fa-search fa-3x mb-4 opacity-30"></i>
+                <p>请输入院校名称进行搜索</p>
+            </div>
+            
+            <div id="loading" class="hidden text-center py-12">
+                <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                <p class="mt-4 text-gray-600">正在搜索...</p>
+            </div>
+            
+            <div id="noResults" class="hidden hidden text-center py-12 bg-white rounded-xl p-6 card-shadow">
+                <i class="fa fa-frown-o fa-3x text-gray-400 mb-4"></i>
+                <p class="text-gray-600">未找到相关院校，请尝试其他关键词</p>
+            </div>
+            
+            <div id="resultsList" class="hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟院校数据
+        const universities = [
+            { id: 1, name: "北京大学", location: "北京市", type: "综合类", founded: 1898, logo: "https://picsum.photos/id/1/80/80" },
+            { id: 2, name: "清华大学", location: "北京市", type: "理工类", founded: 1911, logo: "https://picsum.photos/id/2/80/80" },
+            { id: 3, name: "复旦大学", location: "上海市", type: "综合类", founded: 1905, logo: "https://picsum.photos/id/3/80/80" },
+            { id: 4, name: "浙江大学", location: "浙江省杭州市", type: "综合类", founded: 1897, logo: "https://picsum.photos/id/4/80/80" },
+            { id: 5, name: "南京大学", location: "江苏省南京市", type: "综合类", founded: 1902, logo: "https://picsum.photos/id/5/80/80" },
+            { id: 6, name: "上海交通大学", location: "上海市", type: "理工类", founded: 1896, logo: "https://picsum.photos/id/6/80/80" },
+            { id: 7, name: "武汉大学", location: "湖北省武汉市", type: "综合类", founded: 1893, logo: "https://picsum.photos/id/7/80/80" },
+            { id: 8, name: "中山大学", location: "广东省广州市", type: "综合类", founded: 1924, logo: "https://picsum.photos/id/8/80/80" },
+            { id: 9, name: "哈尔滨工业大学", location: "黑龙江省哈尔滨市", type: "理工类", founded: 1920, logo: "https://picsum.photos/id/9/80/80" },
+            { id: 10, name: "西安交通大学", location: "陕西省西安市", type: "综合类", founded: 1896, logo: "https://picsum.photos/id/10/80/80" }
+        ];
+
+        // DOM元素
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const initialMessage = document.getElementById('initialMessage');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const resultsList = document.getElementById('resultsList');
+        const tags = document.querySelectorAll('.tag');
+
+        // 搜索功能
+        function searchUniversities() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            
+            // 显示加载状态
+            initialMessage.classList.add('hidden');
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                // 过滤结果
+                const filtered = universities.filter(university => 
+                    university.name.toLowerCase().includes(keyword) ||
+                    university.location.toLowerCase().includes(keyword) ||
+                    university.type.toLowerCase().includes(keyword)
+                );
+                
+                // 隐藏加载状态
+                loading.classList.add('hidden');
+                
+                // 显示结果
+                if (filtered.length > 0) {
+                    displayResults(filtered);
+                    resultsList.classList.remove('hidden');
+                } else {
+                    noResults.classList.remove('hidden');
+                }
+            }, 800);
+        }
+
+        // 显示搜索结果
+        function displayResults(results) {
+            resultsList.innerHTML = '';
+            
+            results.forEach(university => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl p-6 card-shadow transform transition-all hover:translate-y-[-5px] hover:shadow-lg';
+                card.innerHTML = `
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-shrink-0">
+                            <img src="${university.logo}" alt="${university.name}校徽" class="w-20 h-20 object-cover rounded-lg">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">${university.name}</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fa fa-map-marker text-red-500 mr-2"></i>
+                                    <span>所在地: ${university.location}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fa fa-tags text-blue-500 mr-2"></i>
+                                    <span>类型: ${university.type}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fa fa-calendar text-green-500 mr-2"></i>
+                                    <span>创办时间: ${university.founded}年</span>
+                                </div>
+                            </div>
+                            <button class="mt-4 text-primary hover:text-primary/80 font-medium flex items-center gap-1 transition-colors">
+                                <span>查看详情</span>
+                                <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                resultsList.appendChild(card);
+            });
+        }
+
+        // 清空搜索
+        function clearSearch() {
+            searchInput.value = '';
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.add('hidden');
+            initialMessage.classList.remove('hidden');
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', searchUniversities);
+        clearBtn.addEventListener('click', clearSearch);
+        
+        // 回车搜索
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchUniversities();
+            }
+        });
+        
+        // 热门标签点击
+        tags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                searchInput.value = tag.textContent;
+                searchUniversities();
+            });
+        });
+    </script>
+</body>
+</html>

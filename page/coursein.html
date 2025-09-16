@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>批量导入课程</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .import-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .title {
+            color: #165DFF;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f2f3f5;
+        }
+        .upload-area {
+            border: 2px dashed #e5e6eb;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #165DFF;
+            background-color: rgba(22,93,255,0.02);
+        }
+        .upload-icon {
+            font-size: 40px;
+            color: #165DFF;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .template-info {
+            margin-top: 15px;
+            color: #999;
+            font-size: 13px;
+        }
+        .layui-btn {
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .layui-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22,93,255,0.2);
+        }
+        .preview-area {
+            margin-top: 30px;
+            display: none;
+        }
+        .preview-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 3px solid #165DFF;
+        }
+        .field-info {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .field-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .field-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .field-item {
+            background-color: #fff;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            border: 1px solid #eee;
+        }
+        .action-bar {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .action-bar .layui-btn {
+            margin: 0 10px;
+            padding: 0 25px;
+        }
+        .layui-table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .layui-table th {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+<div class="import-container">
+    <div class="title">
+        <i class="fa fa-upload"></i> 批量导入课程
+    </div>
+    
+    <!-- 上传区域 -->
+    <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">
+            <i class="fa fa-file-excel-o"></i>
+        </div>
+        <div class="upload-text">
+            <p>点击或拖拽Excel文件至此处上传</p>
+            <p>支持 .xlsx 格式，单次上传不超过10MB</p>
+        </div>
+        <button type="button" class="layui-btn" id="uploadBtn">
+            <i class="fa fa-folder-open"></i> 选择文件
+        </button>
+        <div class="template-info">
+            <p>
+                <i class="fa fa-info-circle"></i> 请按照模板格式上传，
+                <a href="javascript:;" id="downloadTemplate" class="layui-text-color-blue">下载模板</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- 字段说明 -->
+    <div class="field-info">
+        <div class="field-title">支持导入的课程字段：</div>
+        <div class="field-list">
+            <div class="field-item">课程名称 <span style="color: #F53F3F;">*</span></div>
+            <div class="field-item">课程编码 <span style="color: #F53F3F;">*</span></div>
+            <div class="field-item">所属专业 <span style="color: #F53F3F;">*</span></div>
+            <div class="field-item">授课教师</div>
+            <div class="field-item">学分</div>
+            <div class="field-item">学时</div>
+            <div class="field-item">课程类型</div>
+            <div class="field-item">课程简介</div>
+            <div class="field-item">课程状态</div>
+        </div>
+    </div>
+    
+    <!-- 预览区域 -->
+    <div class="preview-area" id="previewArea">
+        <div class="preview-title">
+            <i class="fa fa-table"></i> 数据预览（共 <span id="totalCount">0</span> 条）
+        </div>
+        <table class="layui-table" lay-size="sm">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>课程名称</th>
+                    <th>课程编码</th>
+                    <th>所属专业</th>
+                    <th>授课教师</th>
+                    <th>学分</th>
+                    <th>学时</th>
+                    <th>课程类型</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody id="previewTable">
+                <!-- 预览数据将通过JS动态填充 -->
+            </tbody>
+        </table>
+        
+        <!-- 操作按钮 -->
+        <div class="action-bar">
+            <button class="layui-btn layui-btn-primary" id="reuploadBtn">
+                <i class="fa fa-refresh"></i> 重新上传
+            </button>
+            <button class="layui-btn" id="confirmImportBtn">
+                <i class="fa fa-check"></i> 确认导入
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['upload', 'layer', 'element'], function() {
+        var upload = layui.upload;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        
+        // 模拟课程数据（实际项目中从上传的Excel解析）
+        var mockCourseData = [
+            {
+                name: "数据结构与算法",
+                code: "CS201",
+                major: "计算机科学与技术",
+                teacher: "张教授",
+                credit: 4,
+                hours: 64,
+                type: "必修课",
+                status: "正常"
+            },
+            {
+                name: "人工智能导论",
+                code: "AI101",
+                major: "人工智能",
+                teacher: "李教授",
+                credit: 3,
+                hours: 48,
+                type: "专业基础课",
+                status: "正常"
+            },
+            {
+                name: "数据库原理",
+                code: "DB302",
+                major: "软件工程",
+                teacher: "王老师",
+                credit: 4,
+                hours: 64,
+                type: "必修课",
+                status: "正常"
+            },
+            {
+                name: "大数据分析",
+                code: "DS401",
+                major: "数据科学与大数据技术",
+                teacher: "赵教授",
+                credit: 3,
+                hours: 48,
+                type: "选修课",
+                status: "正常"
+            }
+        ];
+        
+        // 初始化上传组件
+        var uploadInst = upload.render({
+            elem: '#uploadBtn',
+            url: '../../api/uploadCourse', // 实际上传接口
+            accept: 'file',
+            exts: 'xlsx',
+            size: 10240, // 10MB
+            auto: false, // 不自动上传
+            bindAction: '#uploadBtn', // 绑定上传按钮
+            
+            // 选择文件后回调
+            choose: function(obj) {
+                // 模拟解析Excel文件
+                layer.load(2);
+                setTimeout(function() {
+                    layer.closeAll('loading');
+                    
+                    // 显示预览区域
+                    $('#uploadArea').hide();
+                    $('#previewArea').show();
+                    
+                    // 填充预览数据
+                    fillPreviewTable(mockCourseData);
+                    
+                    // 更新总数
+                    $('#totalCount').text(mockCourseData.length);
+                    
+                    layer.msg('文件解析成功，共发现 ' + mockCourseData.length + ' 条课程数据', {icon: 1});
+                }, 1500);
+            },
+            
+            // 上传成功回调
+            done: function(res) {
+                if (res.code === 0) {
+                    layer.msg('导入成功，共导入 ' + res.successCount + ' 条课程，失败 ' + res.failCount + ' 条', {
+                        icon: 1,
+                        time: 2000
+                    }, function() {
+                        // 关闭当前页面并刷新父页面
+                        if (parent && parent.layer) {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                            if (parent.layui.table) {
+                                parent.layui.table.reload('courseTable');
+                            }
+                        }
+                    });
+                } else {
+                    layer.msg('导入失败：' + res.msg, {icon: 2});
+                }
+            },
+            
+            // 上传失败回调
+            error: function() {
+                layer.msg('上传失败，请重试', {icon: 2});
+            }
+        });
+        
+        // 填充预览表格
+        function fillPreviewTable(data) {
+            var html = '';
+            data.forEach(function(item, index) {
+                html += '<tr>' +
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td>' + (item.name || '') + '</td>' +
+                    '<td>' + (item.code || '') + '</td>' +
+                    '<td>' + (item.major || '') + '</td>' +
+                    '<td>' + (item.teacher || '') + '</td>' +
+                    '<td>' + (item.credit || '') + '</td>' +
+                    '<td>' + (item.hours || '') + '</td>' +
+                    '<td>' + (item.type || '') + '</td>' +
+                    '<td><span class="layui-badge layui-bg-green">' + (item.status || '') + '</span></td>' +
+                    '</tr>';
+            });
+            $('#previewTable').html(html);
+        }
+        
+        // 重新上传
+        $('#reuploadBtn').on('click', function() {
+            $('#previewArea').hide();
+            $('#uploadArea').show();
+        });
+        
+        // 确认导入
+        $('#confirmImportBtn').on('click', function() {
+            layer.confirm('确定要导入这 ' + mockCourseData.length + ' 条课程数据吗？', {
+                icon: 3,
+                title: '确认导入'
+            }, function(index) {
+                layer.close(index);
+                layer.load(2);
+                
+                // 模拟导入过程
+                setTimeout(function() {
+                    // 调用上传组件的上传方法
+                    uploadInst.upload();
+                }, 1000);
+            });
+        });
+        
+        // 下载模板
+        $('#downloadTemplate').on('click', function() {
+            layer.msg('模板下载中...', {icon: 1});
+            // 实际项目中这里应该是模板文件的下载链接
+            setTimeout(function() {
+                layer.msg('模板下载成功', {icon: 1});
+            }, 1000);
+        });
+    });
+</script>
+</body>
+</html>

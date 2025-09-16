@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>课程安排</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .layui-select {
+            width: 140px;
+        }
+        .course-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .course-table th, .course-table td {
+            border: 1px solid #eee;
+            padding: 8px;
+            text-align: center;
+        }
+        .course-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .course {
+            background-color: #e6f7ff;
+            border-radius: 4px;
+            padding: 5px;
+            margin: 3px 0;
+            font-size: 12px;
+        }
+        .btn-group {
+            margin-top: 15px;
+            text-align: right;
+        }
+        .layui-btn {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2><i class="fa fa-calendar"></i> 课程安排表</h2>
+    
+    <div class="controls">
+        <select class="layui-select" lay-verify="">
+            <option value="">请选择班级</option>
+            <option value="1" selected>软件工程2022-1班</option>
+            <option value="2">计算机2022-1班</option>
+        </select>
+        
+        <select class="layui-select" lay-verify="">
+            <option value="1">第1周</option>
+            <option value="2" selected>第2周</option>
+            <option value="3">第3周</option>
+        </select>
+        
+        <button class="layui-btn layui-btn-primary" id="refreshBtn">
+            <i class="fa fa-refresh"></i> 刷新
+        </button>
+    </div>
+    
+    <table class="course-table">
+        <tr>
+            <th>节次</th>
+            <th>周一</th>
+            <th>周二</th>
+            <th>周三</th>
+            <th>周四</th>
+            <th>周五</th>
+        </tr>
+        <tr>
+            <td>1-2节</td>
+            <td>
+                <div class="course">数据结构<br>张教授 | 教101</div>
+            </td>
+            <td></td>
+            <td>
+                <div class="course">高等数学<br>王老师 | 教202</div>
+            </td>
+            <td></td>
+            <td>
+                <div class="course">计算机网络<br>刘教授 | 教303</div>
+            </td>
+        </tr>
+        <tr>
+            <td>3-4节</td>
+            <td></td>
+            <td>
+                <div class="course">操作系统<br>赵老师 | 教404</div>
+            </td>
+            <td></td>
+            <td>
+                <div class="course">数据库原理<br>孙教授 | 教505</div>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>5-6节</td>
+            <td>
+                <div class="course">人工智能<br>李教授 | 教606</div>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <div class="course">英语<br>陈老师 | 教707</div>
+            </td>
+        </tr>
+        <tr>
+            <td>7-8节</td>
+            <td></td>
+            <td>
+                <div class="course">编程语言<br>周老师 | 实101</div>
+            </td>
+            <td>
+                <div class="course">马克思主义<br>吴老师 | 教808</div>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    
+    <div class="btn-group">
+        <button class="layui-btn layui-btn-primary">
+            <i class="fa fa-download"></i> 导出
+        </button>
+        <button class="layui-btn" id="addBtn">
+            <i class="fa fa-plus"></i> 新增课程
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        
+        // 刷新按钮
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            layer.load(1);
+            setTimeout(() => layer.closeAll('loading'), 500);
+        });
+        
+        // 新增课程按钮
+        document.getElementById('addBtn').addEventListener('click', function() {
+            layer.open({
+                title: '新增课程安排',
+                area: ['400px', '300px'],
+                content: `
+                    <div style="padding: 20px;">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">课程</label>
+                            <div class="layui-input-block">
+                                <select class="layui-select">
+                                    <option value="">选择课程</option>
+                                    <option value="1">数据结构</option>
+                                    <option value="2">人工智能</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">时间</label>
+                            <div class="layui-input-block">
+                                <select class="layui-select">
+                                    <option value="">选择节次</option>
+                                    <option value="1">1-2节</option>
+                                    <option value="2">3-4节</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">星期</label>
+                            <div class="layui-input-block">
+                                <select class="layui-select">
+                                    <option value="1">周一</option>
+                                    <option value="2">周二</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="layui-btn layui-btn-primary">取消</button>
+                            <button class="layui-btn">确定</button>
+                        </div>
+                    </div>
+                `,
+                success: function() {
+                    form.render();
+                }
+            });
+        });
+        
+        // 初始化表单
+        form.render();
+    });
+</script>
+</body>
+</html>
+    

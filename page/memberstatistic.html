@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成员统计</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Chart.js用于数据可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366F1',
+                        secondary: '#64748B',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        info: '#3B82F6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .stat-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 8px 10px -6px rgba(99, 102, 241, 0.1);
+            }
+            .chart-container {
+                position: relative;
+                height: 300px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold text-gray-800 mb-2">
+                <i class="fa fa-bar-chart text-primary mr-3"></i>成员统计分析
+            </h1>
+            <p class="text-gray-600 text-lg">团队成员数据统计与可视化分析</p>
+        </header>
+        
+        <!-- 统计概览卡片 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm mb-1">总成员数</p>
+                        <h3 class="text-3xl font-bold text-gray-800" id="totalMembers">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <i class="fa fa-users text-primary text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-success flex items-center">
+                        <i class="fa fa-arrow-up mr-1"></i> 5.2% <span class="text-gray-500 ml-1">较上月</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm mb-1">平均年龄</p>
+                        <h3 class="text-3xl font-bold text-gray-800" id="avgAge">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-info/10 flex items-center justify-center">
+                        <i class="fa fa-calendar text-info text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-gray-500">男女比例: <span id="genderRatio">0:0</span></span>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm mb-1">平均工龄</p>
+                        <h3 class="text-3xl font-bold text-gray-800" id="avgTenure">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
+                        <i class="fa fa-clock-o text-success text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-gray-500">新入职: <span id="newEmployees">0</span> 人/月</span>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm mb-1">部门数量</p>
+                        <h3 class="text-3xl font-bold text-gray-800" id="deptCount">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center">
+                        <i class="fa fa-sitemap text-warning text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-gray-500">平均每部门: <span id="avgPerDept">0</span> 人</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 部门成员分布 -->
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fa fa-pie-chart text-primary mr-2"></i>部门成员分布
+                </h3>
+                <div class="chart-container">
+                    <canvas id="deptChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 年龄分布 -->
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fa fa-bar-chart text-primary mr-2"></i>年龄分布
+                </h3>
+                <div class="chart-container">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 性别与职位分布 -->
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fa fa-doughnut-chart text-primary mr-2"></i>性别与职位分布
+                </h3>
+                <div class="chart-container">
+                    <canvas id="genderPositionChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 工龄分布 -->
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fa fa-line-chart text-primary mr-2"></i>工龄分布
+                </h3>
+                <div class="chart-container">
+                    <canvas id="tenureChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 部门详情表格 -->
+        <div class="bg-white rounded-xl p-6 shadow-md">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <i class="fa fa-table text-primary mr-2"></i>部门详情统计
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">部门</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">人数</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均年龄</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均工龄</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">男女比例</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deptTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- 表格内容将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟成员数据
+        const members = [
+            // 技术部
+            { id: 1, name: "张三", department: "技术部", position: "前端开发工程师", age: 28, tenure: 3, gender: "男" },
+            { id: 2, name: "李四", department: "技术部", position: "后端开发工程师", age: 32, tenure: 5, gender: "男" },
+            { id: 3, name: "王芳", department: "技术部", position: "UI设计师", age: 26, tenure: 2, gender: "女" },
+            { id: 4, name: "赵伟", department: "技术部", position: "测试工程师", age: 30, tenure: 4, gender: "男" },
+            { id: 5, name: "刘强", department: "技术部", position: "产品经理", age: 35, tenure: 7, gender: "男" },
+            
+            // 市场部
+            { id: 6, name: "孙丽", department: "市场部", position: "市场经理", age: 31, tenure: 6, gender: "女" },
+            { id: 7, name: "周杰", department: "市场部", position: "销售代表", age: 27, tenure: 2, gender: "男" },
+            { id: 8, name: "吴敏", department: "市场部", position: "销售代表", age: 25, tenure: 1, gender: "女" },
+            
+            // 人事部
+            { id: 9, name: "郑华", department: "人事部", position: "人事经理", age: 33, tenure: 8, gender: "女" },
+            { id: 10, name: "钱明", department: "人事部", position: "招聘专员", age: 29, tenure: 3, gender: "男" },
+            
+            // 财务部
+            { id: 11, name: "冯静", department: "财务部", position: "会计", age: 34, tenure: 6, gender: "女" },
+            { id: 12, name: "陈杰", department: "财务部", position: "出纳", age: 26, tenure: 2, gender: "男" },
+            
+            // 运营部
+            { id: 13, name: "褚琳", department: "运营部", position: "运营主管", age: 30, tenure: 5, gender: "女" },
+            { id: 14, name: "卫红", department: "运营部", position: "内容运营", age: 24, tenure: 1, gender: "女" },
+            { id: 15, name: "蒋强", department: "运营部", position: "数据分析师", age: 28, tenure: 3, gender: "男" }
+        ];
+
+        // 页面加载完成后初始化统计数据和图表
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateStatistics();
+            initCharts();
+            populateDeptTable();
+        });
+
+        // 计算统计数据并更新概览卡片
+        function calculateStatistics() {
+            // 总成员数
+            const totalMembers = members.length;
+            document.getElementById('totalMembers').textContent = totalMembers;
+            
+            // 平均年龄
+            const totalAge = members.reduce((sum, member) => sum + member.age, 0);
+            const avgAge = (totalAge / totalMembers).toFixed(1);
+            document.getElementById('avgAge').textContent = avgAge;
+            
+            // 性别比例
+            const maleCount = members.filter(member => member.gender === "男").length;
+            const femaleCount = totalMembers - maleCount;
+            const genderRatio = `${maleCount}:${femaleCount}`;
+            document.getElementById('genderRatio').textContent = genderRatio;
+            
+            // 平均工龄
+            const totalTenure = members.reduce((sum, member) => sum + member.tenure, 0);
+            const avgTenure = (totalTenure / totalMembers).toFixed(1);
+            document.getElementById('avgTenure').textContent = `${avgTenure}年`;
+            
+            // 新入职人数(假设 tenure < 1 为新入职)
+            const newEmployees = members.filter(member => member.tenure < 1).length;
+            document.getElementById('newEmployees').textContent = newEmployees;
+            
+            // 部门数量
+            const departments = [...new Set(members.map(member => member.department))];
+            const deptCount = departments.length;
+            document.getElementById('deptCount').textContent = deptCount;
+            
+            // 平均每部门人数
+            const avgPerDept = (totalMembers / deptCount).toFixed(1);
+            document.getElementById('avgPerDept').textContent = avgPerDept;
+        }
+
+        // 初始化所有图表
+        function initCharts() {
+            initDeptChart();
+            initAgeChart();
+            initGenderPositionChart();
+            initTenureChart();
+        }
+
+        // 部门成员分布图表
+        function initDeptChart() {
+            const ctx = document.getElementById('deptChart').getContext('2d');
+            
+            // 按部门分组统计人数
+            const deptData = {};
+            members.forEach(member => {
+                deptData[member.department] = (deptData[member.department] || 0) + 1;
+            });
+            
+            const departments = Object.keys(deptData);
+            const counts = Object.values(deptData);
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: departments,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            '#6366F1', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 年龄分布图表
+        function initAgeChart() {
+            const ctx = document.getElementById('ageChart').getContext('2d');
+            
+            // 按年龄段分组
+            const ageGroups = {
+                '20-25': 0,
+                '26-30': 0,
+                '31-35': 0,
+                '36-40': 0,
+                '40+': 0
+            };
+            
+            members.forEach(member => {
+                if (member.age <= 25) ageGroups['20-25']++;
+                else if (member.age <= 30) ageGroups['26-30']++;
+                else if (member.age <= 35) ageGroups['31-35']++;
+                else if (member.age <= 40) ageGroups['36-40']++;
+                else ageGroups['40+']++;
+            });
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageGroups),
+                    datasets: [{
+                        label: '人数',
+                        data: Object.values(ageGroups),
+                        backgroundColor: '#6366F1',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 性别与职位分布图表
+        function initGenderPositionChart() {
+            const ctx = document.getElementById('genderPositionChart').getContext('2d');
+            
+            // 获取所有职位
+            const positions = [...new Set(members.map(member => member.position))];
+            
+            // 按职位和性别统计
+            const maleData = [];
+            const femaleData = [];
+            
+            positions.forEach(position => {
+                maleData.push(members.filter(m => m.position === position && m.gender === '男').length);
+                femaleData.push(members.filter(m => m.position === position && m.gender === '女').length);
+            });
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: positions,
+                    datasets: [
+                        {
+                            label: '男性',
+                            data: maleData,
+                            backgroundColor: '#3B82F6'
+                        },
+                        {
+                            label: '女性',
+                            data: femaleData,
+                            backgroundColor: '#EC4899'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 工龄分布图表
+        function initTenureChart() {
+            const ctx = document.getElementById('tenureChart').getContext('2d');
+            
+            // 按工龄分组
+            const tenureGroups = {
+                '1年以内': 0,
+                '1-3年': 0,
+                '3-5年': 0,
+                '5-10年': 0,
+                '10年以上': 0
+            };
+            
+            members.forEach(member => {
+                if (member.tenure < 1) tenureGroups['1年以内']++;
+                else if (member.tenure <= 3) tenureGroups['1-3年']++;
+                else if (member.tenure <= 5) tenureGroups['3-5年']++;
+                else if (member.tenure <= 10) tenureGroups['5-10年']++;
+                else tenureGroups['10年以上']++;
+            });
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(tenureGroups),
+                    datasets: [{
+                        label: '人数',
+                        data: Object.values(tenureGroups),
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderColor: '#6366F1',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#6366F1',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 填充部门详情表格
+        function populateDeptTable() {
+            const tableBody = document.getElementById('deptTableBody');
+            tableBody.innerHTML = '';
+            
+            // 按部门分组
+            const deptGroups = {};
+            members.forEach(member => {
+                if (!deptGroups[member.department]) {
+                    deptGroups[member.department] = [];
+                }
+                deptGroups[member.department].push(member);
+            });
+            
+            // 为每个部门创建表格行
+            Object.entries(deptGroups).forEach(([dept, membersInDept]) => {
+                const count = membersInDept.length;
+                const totalAge = membersInDept.reduce((sum, m) => sum + m.age, 0);
+                const avgAge = (totalAge / count).toFixed(1);
+                const totalTenure = membersInDept.reduce((sum, m) => sum + m.tenure, 0);
+                const avgTenure = (totalTenure / count).toFixed(1);
+                const maleCount = membersInDept.filter(m => m.gender === '男').length;
+                const femaleCount = count - maleCount;
+                const genderRatio = `${maleCount}:${femaleCount}`;
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors';
+                row.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap">${dept}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${count}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${avgAge}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${avgTenure}年</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${genderRatio}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
+    

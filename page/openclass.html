@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公开课查询</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 标题 -->
+        <header class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                <i class="fa fa-graduation-cap text-primary mr-2"></i>公开课查询
+            </h1>
+            <p class="text-gray-600 mt-2">查找各类免费公开课程</p>
+        </header>
+        
+        <!-- 搜索区域 -->
+        <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="输入课程名称或关键词..." 
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                >
+                <button 
+                    id="searchBtn" 
+                    class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
+                >
+                    <i class="fa fa-search mr-1"></i>搜索
+                </button>
+            </div>
+            
+            <!-- 分类标签 -->
+            <div class="mt-4 flex flex-wrap gap-2">
+                <span class="category px-3 py-1 bg-blue-50 text-primary text-sm rounded-full cursor-pointer hover:bg-blue-100">全部</span>
+                <span class="category px-3 py-1 bg-blue-50 text-primary text-sm rounded-full cursor-pointer hover:bg-blue-100">科技</span>
+                <span class="category px-3 py-1 bg-blue-50 text-primary text-sm rounded-full cursor-pointer hover:bg-blue-100">人文</span>
+                <span class="category px-3 py-1 bg-blue-50 text-primary text-sm rounded-full cursor-pointer hover:bg-blue-100">商业</span>
+                <span class="category px-3 py-1 bg-blue-50 text-primary text-sm rounded-full cursor-pointer hover:bg-blue-100">艺术</span>
+                <span class="category px-3 py-1 bg-blue-50 text-primary text-sm rounded-full cursor-pointer hover:bg-blue-100">科学</span>
+            </div>
+        </div>
+        
+        <!-- 结果区域 -->
+        <div id="results">
+            <!-- 初始状态 -->
+            <div id="initial" class="text-center py-10 text-gray-500">
+                <i class="fa fa-book fa-2x mb-3 opacity-50"></i>
+                <p>请输入关键词搜索公开课</p>
+            </div>
+            
+            <!-- 加载状态 -->
+            <div id="loading" class="hidden text-center py-10">
+                <i class="fa fa-spinner fa-spin text-primary"></i>
+                <p class="mt-2 text-gray-600">搜索中...</p>
+            </div>
+            
+            <!-- 无结果状态 -->
+            <div id="noResults" class="hidden text-center py-10 bg-white rounded-lg p-4">
+                <i class="fa fa-frown-o text-gray-400"></i>
+                <p class="mt-2 text-gray-600">未找到相关课程</p>
+            </div>
+            
+            <!-- 结果列表 -->
+            <div id="resultList" class="hidden space-y-3"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟公开课数据
+        const courses = [
+            { id: 1, name: "人工智能基础", teacher: "李教授", category: "科技", duration: "8周", school: "清华大学", students: 12500 },
+            { id: 2, name: "中国传统文化概览", teacher: "王教授", category: "人文", duration: "6周", school: "北京大学", students: 8900 },
+            { id: 3, name: "经济学原理", teacher: "张教授", category: "商业", duration: "10周", school: "复旦大学", students: 15600 },
+            { id: 4, name: "现代艺术赏析", teacher: "刘教授", category: "艺术", duration: "5周", school: "中央美院", students: 7800 },
+            { id: 5, name: "数据结构与算法", teacher: "赵教授", category: "科技", duration: "12周", school: "浙江大学", students: 21000 },
+            { id: 6, name: "基础物理学", teacher: "孙教授", category: "科学", duration: "9周", school: "南京大学", students: 9500 },
+            { id: 7, name: "市场营销策略", teacher: "周教授", category: "商业", duration: "7周", school: "上海交大", students: 10200 },
+            { id: 8, name: "西方哲学史", teacher: "吴教授", category: "人文", duration: "8周", school: "武汉大学", students: 6300 }
+        ];
+
+        // DOM元素
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const initial = document.getElementById('initial');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const resultList = document.getElementById('resultList');
+        const categories = document.querySelectorAll('.category');
+        
+        let activeCategory = '全部';
+
+        // 搜索课程
+        function searchCourses() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            
+            // 显示加载状态
+            initial.classList.add('hidden');
+            resultList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            // 模拟网络请求
+            setTimeout(() => {
+                // 筛选结果
+                const filtered = courses.filter(course => {
+                    const matchesKeyword = course.name.toLowerCase().includes(keyword) || 
+                                         course.teacher.toLowerCase().includes(keyword);
+                    const matchesCategory = activeCategory === '全部' || course.category === activeCategory;
+                    return matchesKeyword && matchesCategory;
+                });
+                
+                // 处理结果
+                loading.classList.add('hidden');
+                if (filtered.length > 0) {
+                    displayResults(filtered);
+                    resultList.classList.remove('hidden');
+                } else {
+                    noResults.classList.remove('hidden');
+                }
+            }, 500);
+        }
+
+        // 显示结果
+        function displayResults(results) {
+            resultList.innerHTML = '';
+            
+            results.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.className = 'bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow';
+                courseElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-gray-800">${course.name}</h3>
+                            <p class="text-sm text-gray-600 mt-1">
+                                <i class="fa fa-user-o mr-1"></i>${course.teacher} · ${course.school}
+                            </p>
+                        </div>
+                        <span class="px-2 py-1 bg-blue-50 text-primary text-xs rounded">${course.category}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3 text-sm text-gray-500">
+                        <div>
+                            <span class="mr-3"><i class="fa fa-clock-o mr-1"></i>${course.duration}</span>
+                            <span><i class="fa fa-users mr-1"></i>${(course.students/1000).toFixed(1)}k人学习</span>
+                        </div>
+                        <button class="text-primary hover:text-primary/80">查看 <i class="fa fa-angle-right ml-1"></i></button>
+                    </div>
+                `;
+                resultList.appendChild(courseElement);
+            });
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', searchCourses);
+        
+        // 回车搜索
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchCourses();
+        });
+        
+        // 分类筛选
+        categories.forEach(cat => {
+            cat.addEventListener('click', () => {
+                // 更新选中状态
+                activeCategory = cat.textContent;
+                categories.forEach(c => {
+                    if (c.textContent === activeCategory) {
+                        c.classList.add('bg-primary', 'text-white');
+                        c.classList.remove('bg-blue-50', 'text-primary');
+                    } else {
+                        c.classList.remove('bg-primary', 'text-white');
+                        c.classList.add('bg-blue-50', 'text-primary');
+                    }
+                });
+                searchCourses();
+            });
+        });
+    </script>
+</body>
+</html>
+    

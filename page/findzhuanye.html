@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专业查询</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#64748B',
+                        accent: '#3B82F6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold text-gray-800 mb-2">
+                <i class="fa fa-graduation-cap text-primary mr-3"></i>专业查询系统
+            </h1>
+            <p class="text-gray-600 text-lg">查找各类专业信息及所属学科</p>
+        </header>
+        
+        <!-- 搜索区域 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="请输入专业名称或关键词..." 
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                >
+                <button 
+                    id="searchBtn" 
+                    class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                >
+                    <i class="fa fa-search"></i>
+                    <span>搜索</span>
+                </button>
+                <button 
+                    id="clearBtn" 
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all"
+                >
+                    清空
+                </button>
+            </div>
+            
+            <!-- 专业类别筛选 -->
+            <div class="mt-5">
+                <p class="text-gray-500 mb-2">专业类别:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="category bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200 transition-colors">全部</span>
+                    <span class="category bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200 transition-colors">工学</span>
+                    <span class="category bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200 transition-colors">理学</span>
+                    <span class="category bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200 transition-colors">医学</span>
+                    <span class="category bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200 transition-colors">文学</span>
+                    <span class="category bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200 transition-colors">经济学</span>
+                    <span class="category bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200 transition-colors">管理学</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果区域 -->
+        <div id="results" class="space-y-4">
+            <!-- 结果将通过JavaScript动态插入 -->
+            <div id="initialMessage" class="text-center py-12 text-gray-500">
+                <i class="fa fa-book fa-3x mb-4 opacity-30"></i>
+                <p>请输入专业名称进行搜索</p>
+            </div>
+            
+            <div id="loading" class="hidden text-center py-12">
+                <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                <p class="mt-4 text-gray-600">正在搜索...</p>
+            </div>
+            
+            <div id="noResults" class="hidden text-center py-12 bg-white rounded-xl p-6 shadow-md">
+                <i class="fa fa-frown-o fa-3x text-gray-400 mb-4"></i>
+                <p class="text-gray-600">未找到相关专业，请尝试其他关键词</p>
+            </div>
+            
+            <div id="resultsList" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟专业数据
+        const majors = [
+            { id: 1, name: "计算机科学与技术", category: "工学", degree: "本科", career: "软件开发工程师、系统分析师", departments: ["计算机学院", "信息技术学院"] },
+            { id: 2, name: "电子信息工程", category: "工学", degree: "本科", career: "电子工程师、通信工程师", departments: ["电子工程学院", "信息科学与工程学院"] },
+            { id: 3, name: "临床医学", category: "医学", degree: "本科/硕士/博士", career: "临床医生、医学研究员", departments: ["医学院", "临床医学院"] },
+            { id: 4, name: "汉语言文学", category: "文学", degree: "本科", career: "编辑、教师、公务员", departments: ["文学院", "人文学院"] },
+            { id: 5, name: "数学与应用数学", category: "理学", degree: "本科/硕士", career: "数据分析师、教师、研究员", departments: ["数学学院", "理学院"] },
+            { id: 6, name: "金融学", category: "经济学", degree: "本科/硕士", career: "金融分析师、银行职员、投资顾问", departments: ["经济学院", "金融学院"] },
+            { id: 7, name: "会计学", category: "管理学", degree: "本科", career: "会计师、审计师、财务经理", departments: ["管理学院", "商学院"] },
+            { id: 8, name: "机械工程", category: "工学", degree: "本科/硕士", career: "机械设计师、制造工程师", departments: ["机械工程学院", "机电工程学院"] },
+            { id: 9, name: "化学工程与工艺", category: "工学", degree: "本科", career: "化工工程师、工艺工程师", departments: ["化学工程学院", "材料与化工学院"] },
+            { id: 10, name: "护理学", category: "医学", degree: "本科", career: "护士、护理管理人员", departments: ["护理学院", "医学院"] }
+        ];
+
+        // DOM元素
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const initialMessage = document.getElementById('initialMessage');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const resultsList = document.getElementById('resultsList');
+        const categories = document.querySelectorAll('.category');
+        
+        let activeCategory = '全部'; // 默认显示全部类别
+
+        // 搜索功能
+        function searchMajors() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            
+            // 显示加载状态
+            initialMessage.classList.add('hidden');
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                // 过滤结果
+                const filtered = majors.filter(major => {
+                    const matchesKeyword = major.name.toLowerCase().includes(keyword) || 
+                                         major.category.toLowerCase().includes(keyword);
+                    const matchesCategory = activeCategory === '全部' || major.category === activeCategory;
+                    return matchesKeyword && matchesCategory;
+                });
+                
+                // 隐藏加载状态
+                loading.classList.add('hidden');
+                
+                // 显示结果
+                if (filtered.length > 0) {
+                    displayResults(filtered);
+                    resultsList.classList.remove('hidden');
+                } else {
+                    noResults.classList.remove('hidden');
+                }
+            }, 600);
+        }
+
+        // 显示搜索结果
+        function displayResults(results) {
+            resultsList.innerHTML = '';
+            
+            results.forEach(major => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl p-5 shadow-md card-hover';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-gray-800">${major.name}</h3>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">${major.category}</span>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <div class="flex items-center">
+                            <i class="fa fa-graduation-cap text-primary mr-2 w-5 text-center"></i>
+                            <span><strong>学位层次:</strong> ${major.degree}</span>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fa fa-building-o text-primary mr-2 w-5 text-center mt-1"></i>
+                            <span><strong>所属学院:</strong> ${major.departments.join('、')}</span>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fa fa-briefcase text-primary mr-2 w-5 text-center mt-1"></i>
+                            <span><strong>就业方向:</strong> ${major.career}</span>
+                        </div>
+                    </div>
+                    
+                    <button class="text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors">
+                        <span>查看详细信息</span>
+                        <i class="fa fa-angle-right ml-1"></i>
+                    </button>
+                `;
+                resultsList.appendChild(card);
+            });
+        }
+
+        // 清空搜索
+        function clearSearch() {
+            searchInput.value = '';
+            activeCategory = '全部';
+            // 重置类别样式
+            categories.forEach(cat => {
+                if (cat.textContent === '全部') {
+                    cat.classList.add('bg-indigo-200', 'font-medium');
+                } else {
+                    cat.classList.remove('bg-indigo-200', 'font-medium');
+                }
+            });
+            // 重置显示
+            resultsList.classList.add('hidden');
+            noResults.classList.add('hidden');
+            loading.classList.add('hidden');
+            initialMessage.classList.remove('hidden');
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', searchMajors);
+        clearBtn.addEventListener('click', clearSearch);
+        
+        // 回车搜索
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchMajors();
+            }
+        });
+        
+        // 类别筛选
+        categories.forEach(category => {
+            category.addEventListener('click', () => {
+                // 更新活跃类别
+                activeCategory = category.textContent;
+                
+                // 更新类别样式
+                categories.forEach(cat => {
+                    if (cat.textContent === activeCategory) {
+                        cat.classList.add('bg-indigo-200', 'font-medium');
+                    } else {
+                        cat.classList.remove('bg-indigo-200', 'font-medium');
+                    }
+                });
+                
+                // 执行搜索
+                searchMajors();
+            });
+        });
+    </script>
+</body>
+</html>
+    

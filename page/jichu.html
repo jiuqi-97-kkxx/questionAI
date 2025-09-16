@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>基础设置</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #165DFF;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .setting-group {
+            margin-bottom: 30px;
+        }
+        .group-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+            padding-left: 5px;
+            border-left: 3px solid #165DFF;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #f2f2f2;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            width: 120px;
+            color: #666;
+        }
+        .setting-content {
+            flex: 1;
+        }
+        .layui-input, .layui-select, .layui-textarea {
+            width: 300px;
+            border-radius: 4px;
+        }
+        .action-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .layui-btn {
+            margin: 0 8px;
+            border-radius: 4px;
+        }
+        .desc-text {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">
+        <i class="fa fa-cog"></i> 基础设置
+    </div>
+    
+    <!-- 个人信息设置 -->
+    <div class="setting-group">
+        <div class="group-title">个人信息</div>
+        
+        <div class="setting-item">
+            <div class="setting-label">用户名</div>
+            <div class="setting-content">
+                <input type="text" value="admin" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-label">姓名</div>
+            <div class="setting-content">
+                <input type="text" value="系统管理员" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-label">联系电话</div>
+            <div class="setting-content">
+                <input type="text" value="138****5678" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-label">电子邮箱</div>
+            <div class="setting-content">
+                <input type="text" value="admin@example.com" class="layui-input">
+                <div class="desc-text">用于接收系统通知和找回密码</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 界面设置 -->
+    <div class="setting-group">
+        <div class="group-title">界面设置</div>
+        
+        <div class="setting-item">
+            <div class="setting-label">主题风格</div>
+            <div class="setting-content">
+                <select class="layui-select">
+                    <option value="default" selected>默认主题</option>
+                    <option value="dark">深色主题</option>
+                    <option value="blue">蓝色主题</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-label">显示密度</div>
+            <div class="setting-content">
+                <select class="layui-select">
+                    <option value="default" selected>默认</option>
+                    <option value="compact">紧凑</option>
+                    <option value="loose">宽松</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-label">消息提醒</div>
+            <div class="setting-content">
+                <input type="checkbox" name="msgNotify" lay-skin="switch" checked>
+                <div class="desc-text">开启后将接收系统消息提醒</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+        <button class="layui-btn layui-btn-primary" id="cancelBtn">
+            <i class="fa fa-times"></i> 取消
+        </button>
+        <button class="layui-btn" id="saveBtn">
+            <i class="fa fa-save"></i> 保存设置
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        
+        // 初始化表单
+        form.render();
+        
+        // 保存设置
+        $('#saveBtn').on('click', function() {
+            // 显示加载
+            var loadIndex = layer.load(2);
+            
+            // 模拟保存过程
+            setTimeout(function() {
+                layer.close(loadIndex);
+                layer.msg('设置已保存', {icon: 1});
+            }, 800);
+        });
+        
+        // 取消按钮
+        $('#cancelBtn').on('click', function() {
+            layer.confirm('确定要放弃修改吗？', {icon: 3}, function(index) {
+                layer.close(index);
+                // 实际项目中可返回上一页
+                // history.back();
+            });
+        });
+        
+        // 消息提醒开关
+        form.on('switch(msgNotify)', function(data) {
+            if (data.elem.checked) {
+                layer.msg('消息提醒已开启', {icon: 1});
+            } else {
+                layer.msg('消息提醒已关闭', {icon: 0});
+            }
+        });
+    });
+</script>
+</body>
+</html>
+    

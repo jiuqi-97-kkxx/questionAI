@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>导出课程数据</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui-src/dist/css/layui.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .export-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .title {
+            color: #165DFF;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f2f3f5;
+        }
+        .filter-section {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .filter-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .filter-title i {
+            margin-right: 8px;
+            color: #165DFF;
+        }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .layui-form-item {
+            margin-bottom: 0;
+        }
+        .field-selection {
+            margin-top: 20px;
+        }
+        .field-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .field-checkbox {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .action-area {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .layui-btn {
+            padding: 0 25px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 6px;
+            margin: 0 10px;
+            transition: all 0.2s;
+        }
+        .layui-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22,93,255,0.2);
+        }
+        .export-preview {
+            margin-top: 25px;
+            border: 1px solid #f2f3f5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .preview-header {
+            font-weight: 600;
+            padding: 10px 15px;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #f2f3f5;
+        }
+        .layui-table {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="export-container">
+    <div class="title">
+        <i class="fa fa-download"></i> 导出课程数据
+    </div>
+    
+    <!-- 筛选条件 -->
+    <div class="filter-section">
+        <div class="filter-title">
+            <i class="fa fa-filter"></i> 导出条件
+        </div>
+        
+        <div class="filter-group">
+            <div class="layui-form-item">
+                <label class="layui-form-label">所属专业</label>
+                <div class="layui-input-block">
+                    <select name="major">
+                        <option value="">全部专业</option>
+                        <option value="软件工程">软件工程</option>
+                        <option value="计算机科学与技术">计算机科学与技术</option>
+                        <option value="人工智能">人工智能</option>
+                        <option value="数据科学与大数据技术">数据科学与大数据技术</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">课程类型</label>
+                <div class="layui-input-block">
+                    <select name="courseType">
+                        <option value="">全部类型</option>
+                        <option value="必修课">必修课</option>
+                        <option value="选修课">选修课</option>
+                        <option value="专业基础课">专业基础课</option>
+                        <option value="实践课">实践课</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">导出格式</label>
+                <div class="layui-input-block">
+                    <select name="exportFormat">
+                        <option value="excel">Excel (.xlsx)</option>
+                        <option value="csv">CSV (.csv)</option>
+                        <option value="pdf">PDF (.pdf)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 字段选择 -->
+        <div class="field-selection">
+            <div class="filter-title">
+                <i class="fa fa-list-ul"></i> 选择导出字段
+            </div>
+            
+            <div class="field-grid">
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="课程名称" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="课程编码" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="所属专业" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="老师" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="学分" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="课时" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="课程类型" checked>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="课程状态">
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" name="field" lay-skin="primary" title="创建时间">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 导出预览 -->
+    <div class="export-preview">
+        <div class="preview-header">
+            数据预览（将导出符合条件的 <span style="color: #165DFF;">28</span> 条记录）
+        </div>
+        <table class="layui-table" lay-size="sm">
+            <thead>
+                <tr>
+                    <th>课程名称</th>
+                    <th>老师</th>
+                    <th>学分</th>
+                    <th>课时</th>
+                    <th>课程类型</th>
+                    <th>所属专业</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>数据结构与算法</td>
+                    <td>张教授</td>
+                    <td>4</td>
+                    <td>64</td>
+                    <td>必修课</td>
+                    <td>计算机科学与技术</td>
+                </tr>
+                <tr>
+                    <td>人工智能导论</td>
+                    <td>李教授</td>
+                    <td>3</td>
+                    <td>48</td>
+                    <td>专业基础课</td>
+                    <td>人工智能</td>
+                </tr>
+                <tr>
+                    <td>数据库原理</td>
+                    <td>王老师</td>
+                    <td>4</td>
+                    <td>64</td>
+                    <td>必修课</td>
+                    <td>软件工程</td>
+                </tr>
+				<tr>
+				    <td>数据库原理</td>
+				    <td>王老师</td>
+				    <td>4</td>
+				    <td>64</td>
+				    <td>必修课</td>
+				    <td>软件工程</td>
+				</tr>
+				<tr>
+				    <td>数据库原理</td>
+				    <td>王老师</td>
+				    <td>4</td>
+				    <td>64</td>
+				    <td>必修课</td>
+				    <td>软件工程</td>
+				</tr>
+				<tr>
+				    <td>数据库原理</td>
+				    <td>王老师</td>
+				    <td>4</td>
+				    <td>64</td>
+				    <td>必修课</td>
+				    <td>软件工程</td>
+				</tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-area">
+        <button class="layui-btn layui-btn-primary" id="cancelBtn">
+            <i class="fa fa-times"></i> 取消
+        </button>
+        <button class="layui-btn" id="exportBtn">
+            <i class="fa fa-download"></i> 开始导出
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/layui-src/dist/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function() {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        
+        // 初始化表单
+        form.render();
+        
+        // 开始导出
+        $('#exportBtn').on('click', function() {
+            // 获取选中的字段
+            var selectedFields = [];
+            $('input[name="field"]:checked').each(function() {
+                selectedFields.push($(this).attr('title'));
+            });
+            
+            if (selectedFields.length === 0) {
+                layer.msg('请至少选择一个导出字段', {icon: 2});
+                return;
+            }
+            
+            // 获取导出格式
+            var exportFormat = $('select[name="exportFormat"]').val() || 'excel';
+            
+            // 显示导出进度
+            var loadIndex = layer.load(2, {
+                shade: [0.3, '#fff'],
+                content: '<div style="padding: 10px;">正在准备导出数据...</div>',
+                success: function(layero) {
+                    layero.find('.layui-layer-content').css({
+                        'padding-top': '30px',
+                        'textAlign': 'center'
+                    });
+                }
+            });
+            
+            // 模拟导出过程
+            setTimeout(function() {
+                // 更新进度信息
+                layer.msg('正在导出 ' + selectedFields.length + ' 个字段的数据...', {
+                    time: 1000,
+                    icon: 16,
+                    shade: 0.3
+                });
+                
+                // 模拟导出完成
+                setTimeout(function() {
+                    layer.close(loadIndex);
+                    
+                    // 显示导出成功信息
+                    layer.msg('导出成功！', {
+                        icon: 1,
+                        time: 1500
+                    }, function() {
+                        // 关闭当前页面（如果是弹窗）
+                        if (parent && parent.layer) {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        }
+                    });
+                }, 1500);
+            }, 1000);
+        });
+        
+        // 取消按钮
+        $('#cancelBtn').on('click', function() {
+            if (parent && parent.layer) {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);
+            } else {
+                history.back();
+            }
+        });
+    });
+</script>
+</body>
+</html>

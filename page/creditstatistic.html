@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学分统计分析</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Chart.js用于数据可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        danger: '#EF4444'
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                <i class="fa fa-bar-chart text-primary mr-2"></i>学分统计分析
+            </h1>
+            <p class="text-gray-600 mt-1">详细展示各类课程学分完成情况</p>
+        </header>
+        
+        <!-- 学生信息和总体统计 -->
+        <div class="bg-white p-5 rounded-lg shadow-sm mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 学生信息 -->
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 mb-3">学生信息</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><span class="text-gray-500">姓名：</span><span id="studentName" class="font-medium">张三</span></p>
+                        <p><span class="text-gray-500">学号：</span><span id="studentId" class="font-medium">2020100123</span></p>
+                        <p><span class="text-gray-500">专业：</span><span id="studentMajor" class="font-medium">计算机科学与技术</span></p>
+                        <p><span class="text-gray-500">年级：</span><span id="studentGrade" class="font-medium">2020级</span></p>
+                    </div>
+                </div>
+                
+                <!-- 总体学分统计 -->
+                <div class="md:col-span-2">
+                    <h3 class="text-sm font-medium text-gray-500 mb-3">总体学分情况</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="p-3 bg-blue-50 rounded">
+                            <p class="text-xs text-gray-500">已修学分</p>
+                            <p class="text-xl font-bold text-primary mt-1">98</p>
+                        </div>
+                        <div class="p-3 bg-yellow-50 rounded">
+                            <p class="text-xs text-gray-500">未修学分</p>
+                            <p class="text-xl font-bold text-warning mt-1">52</p>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded">
+                            <p class="text-xs text-gray-500">总需修学分</p>
+                            <p class="text-xl font-bold text-success mt-1">150</p>
+                        </div>
+                        <div class="p-3 bg-purple-50 rounded">
+                            <p class="text-xs text-gray-500">完成率</p>
+                            <p class="text-xl font-bold text-purple-600 mt-1">65%</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 总体进度条 -->
+                    <div class="mt-4">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">总体完成进度</span>
+                            <span class="font-medium">65%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-primary h-2.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 图表和统计区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- 各类别学分占比 -->
+            <div class="bg-white p-5 rounded-lg shadow-sm">
+                <h3 class="text-base font-medium text-gray-800 mb-4">各类别学分占比</h3>
+                <div class="h-64">
+                    <canvas id="creditTypeChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 各学期学分完成情况 -->
+            <div class="bg-white p-5 rounded-lg shadow-sm">
+                <h3 class="text-base font-medium text-gray-800 mb-4">各学期学分完成情况</h3>
+                <div class="h-64">
+                    <canvas id="semesterChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 详细学分表格 -->
+        <div class="bg-white p-5 rounded-lg shadow-sm">
+            <h3 class="text-base font-medium text-gray-800 mb-4">各类别学分详细情况</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">课程类别</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">已修学分</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">要求学分</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成率</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">进度</th>
+                        </tr>
+                    </thead>
+                    <tbody id="creditDetailsTable" class="bg-white divide-y divide-gray-200">
+                        <!-- 表格内容将通过JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟学分数据
+        const creditData = {
+            categories: [
+                { type: "公共基础课", completed: 30, required: 35 },
+                { type: "专业基础课", completed: 28, required: 30 },
+                { type: "专业核心课", completed: 22, required: 25 },
+                { type: "选修课", completed: 12, required: 30 },
+                { type: "实践教学", completed: 6, required: 10 },
+                { type: "综合素质", completed: 0, required: 10 }
+            ],
+            semesters: [
+                { name: "大一上", completed: 15 },
+                { name: "大一下", completed: 18 },
+                { name: "大二上", completed: 20 },
+                { name: "大二下", completed: 16 },
+                { name: "大三上", completed: 19 },
+                { name: "大三下", completed: 10 },
+                { name: "大四上", completed: 0 },
+                { name: "大四下", completed: 0 }
+            ]
+        };
+
+        // 页面加载完成后初始化图表和表格
+        document.addEventListener('DOMContentLoaded', () => {
+            initCreditTypeChart();
+            initSemesterChart();
+            populateCreditDetailsTable();
+        });
+
+        // 初始化课程类别学分占比图表
+        function initCreditTypeChart() {
+            const ctx = document.getElementById('creditTypeChart').getContext('2d');
+            
+            const labels = creditData.categories.map(item => item.type);
+            const completedData = creditData.categories.map(item => item.completed);
+            const requiredData = creditData.categories.map(item => item.required - item.completed);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '已修学分',
+                            data: completedData,
+                            backgroundColor: '#3B82F6'
+                        },
+                        {
+                            label: '未修学分',
+                            data: requiredData,
+                            backgroundColor: '#93C5FD'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化学期学分图表
+        function initSemesterChart() {
+            const ctx = document.getElementById('semesterChart').getContext('2d');
+            
+            const labels = creditData.semesters.map(item => item.name);
+            const data = creditData.semesters.map(item => item.completed);
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '已修学分',
+                        data: data,
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: '#3B82F6',
+                        tension: 0.4,
+                        pointBackgroundColor: '#3B82F6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 填充学分详情表格
+        function populateCreditDetailsTable() {
+            const tableBody = document.getElementById('creditDetailsTable');
+            tableBody.innerHTML = '';
+            
+            creditData.categories.forEach(category => {
+                const completionRate = Math.round((category.completed / category.required) * 100);
+                let progressClass = 'bg-danger';
+                
+                if (completionRate >= 100) {
+                    progressClass = 'bg-success';
+                } else if (completionRate >= 70) {
+                    progressClass = 'bg-warning';
+                }
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap">${category.type}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${category.completed}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${category.required}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${completionRate}%</td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="${progressClass} h-2 rounded-full" style="width: ${completionRate}%"></div>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
+    
