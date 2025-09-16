@@ -1,0 +1,157 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "page/home.html"
+  },
+  "logoInfo": {
+    "title": "智能解答系统",
+    "image": "images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "首页",
+          "href": "page/home.html",
+          "icon": "fa fa-home",
+          "target": "_self"
+        },
+        {
+          "title": "班级管理",
+          "href": "",
+          "icon": "fa fa-group",
+          "target": "_self",
+          "child": [
+          {
+            "title": "添加班级",
+            "href": "page/addbanji.html",
+            "icon": "fa fa-plus-square-o",
+            "target": "_self"
+          }, {
+            "title": "查询班级",
+            "href": "page/findbanji.html",
+            "icon": "fa fa-search",
+            "target": "_self"
+          }
+        ]
+        },
+        {
+          "title": "数据总览",
+          "href": "",
+          "icon": "fa fa-institution",
+          "target": "_self",
+          "child": [
+            {
+              "title": "参与率统计",
+              "href": "page/tujoing.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "正确率统计",
+              "href": "page/tuzhengque.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            },{
+			
+              "title": "错题统计",
+              "href": "page/tuerror.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "课程管理",
+          "href": "",
+          "icon": "fa fa-male",
+          "target": "_self",
+          "child": [
+            {
+              "title": "添加课程",
+              "href": "page/courseadd.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "导入课程",
+              "href": "page/coursein.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }, {
+              "title": "导出课程",
+              "href": "page/courseout.html",
+              "icon": "fa fa-bar-chart",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "学生信息管理",
+          "href": "",
+          "icon": "fa fa-trophy",
+          "target": "_self",
+          "child": [
+            {
+              "title": "新增学生",
+              "href": "page/addstudent.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "学生查询",
+              "href": "page/findstudent.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "教师信息查询",
+          "href": "",
+          "icon": "fa fa-paw",
+          "target": "_self",
+          "child": [
+            {
+              "title": "教师列表",
+              "href": "page/teacherlist.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "新增教师",
+              "href": "page/addteacher.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }, {
+              "title": "课程安排",
+              "href": "page/anpai.html",
+              "icon": "fa fa-bar-chart",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "系统设置",
+          "href": "",
+          "icon": "fa fa-eye",
+          "target": "_self",
+          "child": [
+            {
+              "title": "安全设置",
+              "href": "page/seaf.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "基础设置",
+              "href": "page/jichu.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
